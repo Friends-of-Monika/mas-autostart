@@ -1,0 +1,19 @@
+name: "Run checks on push"
+
+on:
+  push:
+    paths: [ "**.rpy" ]
+
+jobs:
+  compile-submod:
+    runs-on: "ubuntu-latest"
+
+    steps:
+
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Check"
+        uses: "friends-of-monika/submod-check-action@v1"
+        with:
+          ddlc-url: "${{ secrets.DDLC_DOWNLOAD_URL }}"

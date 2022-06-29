@@ -3,32 +3,37 @@
 define persistent._masAutostart_enabled = False
 
 
-init in masAutostart_log:
+init python in masAutostart_log:
 
     ## Logging ##
 
+    from store.mas_submod_utils import submod_log as log
+
     _LOG_PREFIX = "[MAS Autostart] "
 
+    def info(message):
+        log.info(_LOG_PREFIX + message)
+
     def warn(message):
-        store.mas_submod_utils.submod_log.warning(_LOG_PREFIX + message)
+        log.warning(_LOG_PREFIX + message)
 
     def error(message):
-        store.mas_submod_utils.submod_log.error(_LOG_PREFIX + message)
+        log.error(_LOG_PREFIX + message)
 
 
-init in masAutostart_api:
+init python in masAutostart_api:
 
     ## Initialization ##
 
     import os
     import store.masAutostart_log as log
+    from store import persistent as persistent
 
     if renpy.windows:
-        import _winreg
+        import subprocess
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
-        _AUTORUN_KEY = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
-        _AUTORUN_VALUE_NAME = "Monika After Story"
+        _AUTOSTART_DESKTOP_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
 
     elif renpy.linux:
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
@@ -39,133 +44,82 @@ init in masAutostart_api:
         log.warn("Unsupported platform (not Windows or Linux.)")
 
 
-    ## Conditional helper
+    ## Helpers ##
 
     def is_platform_supported():
-        return renpy.windows || renpy.linux
+        return renpy.windows or renpy.linux
 
 
-    ## Install checks ##
+    ## Enable check functions ##
 
-    def is_installed():
+    def is_enabled():
         if renpy.windows:
-            return _is_installed_windows()
+            return _is_enabled_windows()
 
         elif renpy.linux:
-            return _is_installed_linux()
+            return _is_enabled_linux()
 
         else:
             return False
 
-    def _is_installed_windows():
-        try:
-            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-        except WindowsError as e:
-            log.error("Could not open registry.")
+    def _is_enabled_windows():
+        if not os.path.exists(_AUTOSTART_DESKTOP_FILE):
+            return False
+
+        return True
+
+    def _is_enabled_linux():
+        if not os.path.exists(_AUTOSTART_DESKTOP_FILE):
             return False
 
         try:
-            try:
-                reg_key = _winreg.OpenKey(reg, _AUTORUN_KEY)
-
-            except WindowsError as e:
-                log.error("Could not open registry key " + _AUTORUN_KEY + ".")
-                return False
-
-            try:
-                _value, _type = _winreg.QueryValueEx(reg_key, _AUTORUN_VALUE_NAME)
-
-                if _type != _winreg.REG_SZ:
-                    log.error("Registry key " + os.path.join(_AUTORUN_KEY, _AUTORUN_VALUE_NAME) + " exists, but has invalid type.")
-                    return False
-
-                if _value != _LAUNCHER_PATH:
-                    log.error("Registry key " + os.path.join(_AUTORUN_KEY, _AUTORUN_VALUE_NAME) + " exists, but points to wrong location.")
-                    return False
-
-                return True
-
-            except WindowsError as e:
-                log.error("Could not query registry key " + os.path.join(_AUTORUN_KEY, _AUTORUN_VALUE_NAME) + ".")
-                return False
-
-            finally:
-                _winreg.CloseKey(reg_key)
-
-        finally:
-            _winreg.CloseKey(reg)
-
-    def _is_installed_linux():
-        desktop_file = os.path.join(_AUTOSTART_DESKTOP_FILE)
-
-        if not os.path.exists(desktop_file):
-            return False
-
-        try:
-            fp = open(desktop_file, "r")
+            fp = open(_AUTOSTART_DESKTOP_FILE, "r")
 
         except IOError as e:
-            log.error("Could not open " + desktop_file + " for reading.")
+            log.error("Could not open " + _AUTOSTART_DESKTOP_FILE + " for reading.")
             return False
 
         try:
             _desktop_file = _parse_desktop_file(fp)
 
             if "Desktop Entry" not in _desktop_file or "Exec" not in _desktop_file["Desktop Entry"]:
-                log.error("File " + desktop_file + " exists, but is not a valid desktop file.")
+                log.error("File " + _AUTOSTART_DESKTOP_FILE + " exists, but is not a valid desktop file.")
                 return False
 
             if _desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
-                log.error("File " + desktop_file + " exists, but points to wrong location.")
+                log.error("File " + _AUTOSTART_DESKTOP_FILE + " exists, but points to wrong location.")
                 return False
 
             return True
 
         except IOError as e:
-            log.error("Could not read " + desktop_file + ".")
+            log.error("Could not read " + _AUTOSTART_DESKTOP_FILE + ".")
             return False
 
         finally:
             fp.close()
 
 
-    ## Install methods ##
+    ## Enable functions ##
 
-    def install():
+    def enable():
         if renpy.windows:
-            _install_windows()
+            _enable_windows()
 
         elif renpy.linux:
-            _install_linux()
+            _enable_linux()
 
-    def _install_windows():
-        try:
-            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-        except WindowsError as e:
-            log.error("Could not open registry.")
-
-        try:
-            try:
-                reg_key = _winreg.OpenKey(reg, _AUTORUN_KEY)
-
-            except WindowsError as e:
-                log.error("Could not open registry key " + _AUTORUN_KEY + ".")
-                return
-
-            try:
-                _winreg.SetValueEx(reg_key, _AUTORUN_VALUE_NAME, 0, _winreg.REG_SZ, _LAUNCHER_PATH)
-
-            except WindowsError as e:
-                log.error("Could not save value to registry key " + os.path.join(_AUTORUN_KEY, _AUTORUN_VALUE_NAME) + ".")
-
-            finally:
-                _winreg.CloseKey(reg_key)
-
-        finally:
-            _winreg.CloseKey(reg)
+    def _enable_windows():
+        subprocess.call((
+            "cscript",
+            os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "shortcut.vbs"),
+            _AUTOSTART_DESKTOP_FILE,
+            _LAUNCHER_PATH,
+            os.path.join(*_LAUNCHER_PATH.split("\\")[:-1])
+        ))
 
 
-    def _install_linux():
+    def _enable_linux():
         desktop_file = {
             "Desktop Entry": {
                 "Type": "Application",
@@ -179,21 +133,52 @@ init in masAutostart_api:
             fp = open(_AUTOSTART_DESKTOP_FILE, "w")
 
         except IOError as e:
-            log.error("Could not open " + desktop_file + " for writing.")
+            log.error("Could not open " + _AUTOSTART_DESKTOP_FILE + " for writing.")
             return False
 
         try:
             _serialize_desktop_file(fp, desktop_file)
+            persistent._masAutostart_enabled = True
 
-        except IOError as e:
-            log.error("Could not write to " + desktop_file + ".")
+        except OSError as e:
+            log.error("Could not write to " + _AUTOSTART_DESKTOP_FILE + ".")
 
         finally:
             fp.close()
 
 
+    ## Disable functions ##
 
-    ## Utility methods
+    def disable():
+        if renpy.windows:
+            _disable_windows()
+        elif renpy.linux:
+            _disable_linux()
+
+    def _disable_windows():
+        try:
+            os.remove(_AUTOSTART_DESKTOP_FILE)
+
+        except OSError as e:
+            log.error("Could not delete " + _AUTOSTART_DESKTOP_FILE + ".")
+
+        except FileNotFoundError:
+            pass
+
+
+
+    def _disable_linux():
+        try:
+            os.remove(_AUTOSTART_DESKTOP_FILE)
+
+        except OSError as e:
+            log.error("Could not delete " + _AUTOSTART_DESKTOP_FILE + ".")
+
+        except FileNotFoundError:
+            pass
+
+
+    ## Utility methods ##
 
     def _parse_desktop_file(fp):
         obj = dict()
@@ -202,11 +187,9 @@ init in masAutostart_api:
         param = dict()
 
         def push_group():
-            nonlocal _group, param
-
             obj[_group] = param
-            _group = ""
-            param = dict()
+            _parse_desktop_file._group = ""
+            _parse_desktop_file.param = dict()
 
         while True:
             line = fp.readline()
@@ -236,3 +219,11 @@ init in masAutostart_api:
             fp.write("[{0}]\n".format(_group))
             for _key, _value in desktop_file[_group].items():
                 fp.write("{0}={1}\n".format(_key, _value))
+
+
+## Startup tasks ##
+
+init 10 python:
+    if persistent._masAutostart_enabled and not store.masAutostart_api.is_enabled():
+        store.masAutostart_api.disable()
+        queueEvent("masAutostart_topic_reset")
