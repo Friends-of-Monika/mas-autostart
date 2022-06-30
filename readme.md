@@ -31,11 +31,12 @@
   2. Extract `game` from `.zip` package into your DDLC folder (folder that contains
      `DDLC.exe` file.)
 
-     ⚠️ **IMPORTANT: DO NOT**:
-       * Unpack archive *into* `game`;
-       * Unpack archive *into* `Submods` folder;
-     The only thing you should do is to drag and drop `game` from archive into
-     DDLC folder and let your OS *merge folders* for you on its own.
+     ⚠️ **IMPORTANT!**
+       * **DO NOT** unpack archive *into* `game`!
+       * **DO NOT** unpack archive *into* `Submods` folder!
+
+         The only thing you should do is to drag and drop `game` from archive into
+         DDLC folder and let your OS *merge folders* for you on its own.
   3. Start the game and enable random chatter &mdash; in order to see enable/disable
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
 
