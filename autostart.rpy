@@ -207,18 +207,23 @@ init python in masAutostart_api:
         try:
             os.remove(_AUTOSTART_FILE)
 
-            if persistent._masAutostart_metadata is not None:
-                try:
-                    os.remove(persistent._masAutostart_metadata[1])
-
-                except FileNotFoundError:
-                    pass
-
         except FileNotFoundError:
             pass
 
         except OSError as e:
             log.error("Could not delete " + _AUTOSTART_FILE + ".")
+
+        if persistent._masAutostart_metadata is not None:
+            try:
+                os.remove(persistent._masAutostart_metadata[1])
+
+            except FileNotFoundError:
+                pass
+
+            except OSError as e:
+                log.error("Could not delete " + _AUTOSTART_FILE + ".")
+
+            persistent._masAutostart_metadata = None
 
 
     ## Utility methods ##
