@@ -30,6 +30,7 @@
      (scroll down to 'Assets' section and select first `.zip` file.)
   2. Extract `game` from `.zip` package into your DDLC folder (folder that contains
      `DDLC.exe` file.)
+
      ⚠️ **IMPORTANT: DO NOT**:
        * Unpack archive *into* `game`;
        * Unpack archive *into* `Submods` folder;
