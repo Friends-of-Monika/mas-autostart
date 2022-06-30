@@ -98,6 +98,8 @@ init python in masAutostart_api:
             log.error("File " + _AUTOSTART_FILE + " exists, but points to wrong location.")
             return False
 
+        return True
+
     def _is_enabled_macos():
         if not os.path.exists(_AUTOSTART_FILE):
             return False
