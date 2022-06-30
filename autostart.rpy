@@ -1,6 +1,7 @@
 # Using _masAutostart and not _mas_autostart to prevent collision
 # with _mas_ prefixes used by MAS itself.
 define persistent._masAutostart_enabled = False
+define persistent._masAutostart_metadata = None
 
 
 init python in masAutostart_log:
@@ -90,7 +91,7 @@ init python in masAutostart_api:
             log.error("Could not parse desktop file " + _AUTOSTART_FILE + ".")
             return False
 
-        if "Desktop Entry" not in _desktop_file or "Exec" not in _desktop_file["Desktop Entry"]:
+        if "Desktop Entry" not in desktop_file or "Exec" not in desktop_file["Desktop Entry"]:
             log.error("File " + _AUTOSTART_FILE + " exists, but is not a valid desktop file.")
             return False
 
@@ -127,20 +128,25 @@ init python in masAutostart_api:
         elif renpy.linux:
             _enable_linux()
 
+        elif renpy.macintosh:
+            _enable_macos()
+
     def _enable_windows():
         subprocess.call((
             "cscript",
             _AUTOSTART_SHORTCUT_SCRIPT,
             _AUTOSTART_FILE,
             _LAUNCHER_PATH,
-            os.path.join(*_LAUNCHER_PATH.split("\\")[:-1])
+            os.path.dirname(_LAUNCHER_PATH)
         ))
+
+        persistent._masAutostart_metadata = ("windows", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
 
     def _enable_linux():
         try:
             desktop_file = _map_file(_AUTOSTART_FILE_TEMPLATE, "r", _parse_desktop_file)
-            desktop_file["Exec"] = _LAUNCHER_PATH
+            desktop_file["Desktop Entry"]["Exec"] = _LAUNCHER_PATH
 
         except OSError as e:
             log.error("Could not parse template desktop file {0} ({1}.)".format(_AUTOSTART_FILE_TEMPLATE, e))
@@ -148,17 +154,19 @@ init python in masAutostart_api:
 
         try:
             try:
-                os.mkdir(*os.path.join(_AUTOSTART_FILE.split("/")[:-1]))
+                os.makedirs(os.path.dirname(_AUTOSTART_FILE))
 
             except OSError as e:
-                if e.errno in (17, 21):
-                    pass
+                if e.errno != 17:
+                    raise
 
-            _map_file(_AUTOSTART_FILE, "w", [desktop_file])
+            _map_file(_AUTOSTART_FILE, "w", _serialize_desktop_file, [desktop_file])
             persistent._masAutostart_enabled = True
 
         except OSError as e:
             log.error("Could not write desktop file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+
+        persistent._masAutostart_metadata = ("linux", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
     def _enable_macos():
         try:
@@ -169,23 +177,24 @@ init python in masAutostart_api:
             log.error("Could not parse template plist file {0} ({1}.)".format(_AUTOSTART_PLIST_TEMPLATE, e))
             return
 
-        try:
-            os.mkdir(os.path.join(*_AUTOSTART_FILE.split("/")[:-1]))
-
-        except OSError as e:
-            if e.errno in (17, 21):
-                pass
-
         def dump(fp):
             fp.write(_map_file(_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
             xml.write(fp)
 
         try:
+            try:
+                os.makedirs(os.path.dirname(_AUTOSTART_FILE))
+
+            except OSError as e:
+                if e.errno != 17:
+                    raise
+
             _map_file(_AUTOSTART_FILE, "w", dump)
 
         except OSError as e:
             log.error("Could not write LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
-            return
+
+        persistent._masAutostart_metadata = ("macos", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
 
     ## Disable functions ##
@@ -197,6 +206,13 @@ init python in masAutostart_api:
     def _disable_delete_desktop_file():
         try:
             os.remove(_AUTOSTART_FILE)
+
+            if persistent._masAutostart_metadata is not None:
+                try:
+                    os.remove(persistent._masAutostart_metadata[1])
+
+                except FileNotFoundError:
+                    pass
 
         except FileNotFoundError:
             pass
@@ -210,12 +226,16 @@ init python in masAutostart_api:
     def _parse_desktop_file(fp):
         obj = dict()
 
-        _group = ""
+        _group = None
         param = dict()
 
         def push_group():
-            obj[_group] = param
-            _parse_desktop_file._group = ""
+            if _group is None:
+                obj.update(param)
+            else:
+                obj[_group] = param
+
+            _parse_desktop_file._group = None
             _parse_desktop_file.param = dict()
 
         while True:
@@ -271,4 +291,6 @@ init 1000 python:
 
         elif not store.masAutostart_api.is_enabled():
             store.masAutostart_log.warn("Autostart is known to be enabled, but in fact it is not. Enabling it again.")
+
+            store.masAutostart_api.disable()
             store.masAutostart_api.enable()
