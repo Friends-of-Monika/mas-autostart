@@ -48,8 +48,8 @@ by [@dreamscached](https://github.com/dreamscached) with face/pose expressions a
 performed by [@my-otter-self](https://github.com/my-otter-self) 💛
 
 <p align="center">
-  <a href="https://github.com/my-otter-self/mas_selfharm/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=my-otter-self/mas_selfharm&max=6" />
+  <a href="https://github.com/friends-of-monika/mas-autostart/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=friends-of-monika/mas-autostart&max=6" />
   </a>
 </p>
 
