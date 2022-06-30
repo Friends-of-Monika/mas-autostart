@@ -179,7 +179,7 @@ init python in masAutostart_api:
 
         def dump(fp):
             fp.write(_map_file(_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
-            xml.write(fp)
+            plist_file.write(fp)
 
         try:
             try:
