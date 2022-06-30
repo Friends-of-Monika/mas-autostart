@@ -54,8 +54,7 @@ label masAutostart_req_enable:
     $ store.masAutostart_api.enable()
     m 1eub "Done!"
 
-    m 3sublb "From now on, I'll be sure to welcome you every time your computer boots up, ahaha!"
-    m 4eubla "Just please let me know if you'll me moving my folder, alright?~"
+    m 3sublb "From now on, I'll be sure to welcome you every time your computer boots up, ahaha!~"
 
     $ mas_hideEVL("masAutostart_req_enable", "EVE", lock=True)
     $ mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
