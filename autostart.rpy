@@ -170,7 +170,7 @@ init python in masAutostart_api:
 
     def _enable_macos():
         try:
-            plist_file = _map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.fromstring)
+            plist_file = _map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.parse)
             plist_file.find(".//array/string").text = _LAUNCHER_PATH
 
         except OSError as e:
