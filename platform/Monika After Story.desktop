@@ -1,0 +1,8 @@
+# This file Linux-specific Desktop Entry file used for creating autostart entry.
+# Its Exec parameter will be populated with launcher script path on demand.
+
+[Desktop Entry]
+Type=Application
+Name=Monika After Story
+NoDisplay=true
+Exec=

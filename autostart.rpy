@@ -33,21 +33,29 @@ init python in masAutostart_api:
         import subprocess
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
-        _AUTOSTART_DESKTOP_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
+        _AUTOSTART_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
+        _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "shortcut.vbs")
 
     elif renpy.linux:
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
-        _XDG_CONFIG_HOME = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-        _AUTOSTART_DESKTOP_FILE = os.path.join(_XDG_CONFIG_HOME, "autostart", "Monika After Story.desktop")
+        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")), "autostart", "Monika After Story.desktop")
+        _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "Monika After Story.desktop")
+
+    elif renpy.macintosh:
+        from xml.etree import ElementTree as xml
+
+        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "..", "..", "MacOS", "DDLC")
+        _AUTOSTART_FILE = os.path.join(os.path.expanduser("~"), "Library", "LaunchAgents", "monika.after.story.plist")
+        _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "monika.after.story.plist")
 
     else:
-        log.warn("Unsupported platform (not Windows or Linux.)")
+        log.warn("Unsupported platform (not Windows, Linux or Macintosh.)")
 
 
     ## Helpers ##
 
     def is_platform_supported():
-        return renpy.windows or renpy.linux
+        return renpy.windows or renpy.linux or renpy.macintosh
 
 
     ## Enable check functions ##
@@ -59,45 +67,53 @@ init python in masAutostart_api:
         elif renpy.linux:
             return _is_enabled_linux()
 
+        elif renpy.macintosh:
+            return _is_enabled_macos()
+
         else:
             return False
 
     def _is_enabled_windows():
-        if not os.path.exists(_AUTOSTART_DESKTOP_FILE):
+        if not os.path.exists(_AUTOSTART_FILE):
             return False
 
         return True
 
     def _is_enabled_linux():
-        if not os.path.exists(_AUTOSTART_DESKTOP_FILE):
+        if not os.path.exists(_AUTOSTART_FILE):
             return False
 
         try:
-            fp = open(_AUTOSTART_DESKTOP_FILE, "r")
+            desktop_file = _map_file(_AUTOSTART_FILE, "r", _parse_desktop_file)
 
         except IOError as e:
-            log.error("Could not open " + _AUTOSTART_DESKTOP_FILE + " for reading.")
+            log.error("Could not parse desktop file " + _AUTOSTART_FILE + ".")
+            return False
+
+        if "Desktop Entry" not in _desktop_file or "Exec" not in _desktop_file["Desktop Entry"]:
+            log.error("File " + _AUTOSTART_FILE + " exists, but is not a valid desktop file.")
+            return False
+
+        if desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
+            log.error("File " + _AUTOSTART_FILE + " exists, but points to wrong location.")
+            return False
+
+    def _is_enabled_macos():
+        if not os.path.exists(_AUTOSTART_FILE):
             return False
 
         try:
-            _desktop_file = _parse_desktop_file(fp)
+            plist_file = _map_file(_AUTOSTART_FILE, "r", xml.fromstring)
 
-            if "Desktop Entry" not in _desktop_file or "Exec" not in _desktop_file["Desktop Entry"]:
-                log.error("File " + _AUTOSTART_DESKTOP_FILE + " exists, but is not a valid desktop file.")
-                return False
+        except OSError as e:
+            log.error("Could not parse LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            return
 
-            if _desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
-                log.error("File " + _AUTOSTART_DESKTOP_FILE + " exists, but points to wrong location.")
-                return False
-
-            return True
-
-        except IOError as e:
-            log.error("Could not read " + _AUTOSTART_DESKTOP_FILE + ".")
+        path = plist_file.find(".//array/string")
+        if not path:
             return False
 
-        finally:
-            fp.close()
+        return path == _LAUNCHER_PATH
 
 
     ## Enable functions ##
@@ -112,70 +128,79 @@ init python in masAutostart_api:
     def _enable_windows():
         subprocess.call((
             "cscript",
-            os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "shortcut.vbs"),
-            _AUTOSTART_DESKTOP_FILE,
+            _AUTOSTART_SHORTCUT_SCRIPT,
+            _AUTOSTART_FILE,
             _LAUNCHER_PATH,
             os.path.join(*_LAUNCHER_PATH.split("\\")[:-1])
         ))
 
 
     def _enable_linux():
-        desktop_file = {
-            "Desktop Entry": {
-                "Type": "Application",
-                "Name": "Monika After Story",
-                "NoDisplay": "true",
-                "Exec": _LAUNCHER_PATH
-            }
-        }
+        try:
+            desktop_file = _map_file(_AUTOSTART_FILE_TEMPLATE, "r", _parse_desktop_file)
+            desktop_file["Exec"] = _LAUNCHER_PATH
+
+        except OSError as e:
+            log.error("Could not parse template desktop file {0} ({1}.)".format(_AUTOSTART_FILE_TEMPLATE, e))
+            return
 
         try:
-            fp = open(_AUTOSTART_DESKTOP_FILE, "w")
+            try:
+                os.mkdir(*os.path.join(_AUTOSTART_FILE.split("/")[:-1]))
 
-        except IOError as e:
-            log.error("Could not open " + _AUTOSTART_DESKTOP_FILE + " for writing.")
-            return False
+            except OSError as e:
+                if e.errno in (17, 21):
+                    pass
 
-        try:
-            _serialize_desktop_file(fp, desktop_file)
+            _map_file(_AUTOSTART_FILE, "w", [desktop_file])
             persistent._masAutostart_enabled = True
 
         except OSError as e:
-            log.error("Could not write to " + _AUTOSTART_DESKTOP_FILE + ".")
+            log.error("Could not write desktop file {0} ({1}.)".format(_AUTOSTART_FILE, e))
 
-        finally:
-            fp.close()
+    def _enable_macos():
+        try:
+            plist_file = _map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.fromstring)
+            plist_file.find(".//array/string").text = _LAUNCHER_PATH
+
+        except OSError as e:
+            log.error("Could not parse template plist file {0} ({1}.)".format(_AUTOSTART_PLIST_TEMPLATE, e))
+            return
+
+        try:
+            os.mkdir(os.path.join(*_AUTOSTART_FILE.split("/")[:-1]))
+
+        except OSError as e:
+            if e.errno in (17, 21):
+                pass
+
+        def dump(fp):
+            fp.write(_map_file(_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
+            xml.write(fp)
+
+        try:
+            _map_file(_AUTOSTART_FILE, "w", dump)
+
+        except OSError as e:
+            log.error("Could not write LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            return
 
 
     ## Disable functions ##
 
     def disable():
-        if renpy.windows:
-            _disable_windows()
-        elif renpy.linux:
-            _disable_linux()
+        if renpy.windows or renpy.linux or renpy.macintosh:
+            _disable_delete_desktop_file()
 
-    def _disable_windows():
+    def _disable_delete_desktop_file():
         try:
-            os.remove(_AUTOSTART_DESKTOP_FILE)
-
-        except OSError as e:
-            log.error("Could not delete " + _AUTOSTART_DESKTOP_FILE + ".")
+            os.remove(_AUTOSTART_FILE)
 
         except FileNotFoundError:
             pass
 
-
-
-    def _disable_linux():
-        try:
-            os.remove(_AUTOSTART_DESKTOP_FILE)
-
         except OSError as e:
-            log.error("Could not delete " + _AUTOSTART_DESKTOP_FILE + ".")
-
-        except FileNotFoundError:
-            pass
+            log.error("Could not delete " + _AUTOSTART_FILE + ".")
 
 
     ## Utility methods ##
@@ -220,10 +245,28 @@ init python in masAutostart_api:
             for _key, _value in desktop_file[_group].items():
                 fp.write("{0}={1}\n".format(_key, _value))
 
+    def _map_file(path, mode, fun, args=None):
+        if args is None:
+            args = list()
 
-## Startup tasks ##
+        fp = open(path, mode)
 
-init 10 python:
-    if persistent._masAutostart_enabled and not store.masAutostart_api.is_enabled():
-        store.masAutostart_api.disable()
-        queueEvent("masAutostart_topic_reset")
+        try:
+            return fun(fp, *args)
+
+        finally:
+            fp.close()
+
+
+init 1000 python:
+    if persistent._masAutostart_enabled:
+        if not store.masAutostart_api.is_platform_supported():
+            store.masAutostart_log.warn(
+                "Autostart is known to be enabled, but "
+                "current platform is either unsupported or its support was deprecated. "
+                "Not changing enabled status, optimistically hoping this is temporare."
+            )
+
+        elif not store.masAutostart_api.is_enabled():
+            store.masAutostart_log.warn("Autostart is known to be enabled, but in fact it is not. Enabling it again.")
+            store.masAutostart_api.enable()

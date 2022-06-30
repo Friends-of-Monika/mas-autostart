@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<!--
+    This file is MacOS-specific PropertyList file used for creating LaunchAgent.
+    Its ProgramArguments array will be populated with launcher executable
+    path programmatically on demand.
+-->
+
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>monika.after.story</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string></string>
+        </array>
+        <key>ProcessType</key>
+        <string>Interactive</string>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <false/>
+    </dict>
+</plist>

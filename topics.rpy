@@ -86,16 +86,3 @@ label masAutostart_req_disable:
     $ mas_showEVL("masAutostart_req_enable", "EVE", unlock=True)
 
     return
-
-
-init 5 python:
-    addEvent(
-        Event(
-            persistent.event_database,
-            eventlabel="masAutostart_topic_reset"
-        ),
-        code="EVE"
-    )
-
-label masAutostart_topic_reset:
-    return
