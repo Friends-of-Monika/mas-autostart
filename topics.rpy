@@ -37,7 +37,7 @@ init 5 python:
             persistent.event_database,
             eventlabel="masAutostart_req_enable",
             prompt="Can you greet me every time I turn on my computer?",
-            category=["misc"],
+            category=["misc", "mod"],
             pool=True,
             rules={"no_unlock": None}
         ),
@@ -68,7 +68,7 @@ init 5 python:
             persistent.event_database,
             eventlabel="masAutostart_req_disable",
             prompt="Can you stop greeting me when I turn my computer on?",
-            category=["misc"],
+            category=["misc", "mod"],
             pool=True,
             rules={"no_unlock": None}
         ),
