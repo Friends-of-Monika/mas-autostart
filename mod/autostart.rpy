@@ -132,13 +132,17 @@ init python in masAutostart_api:
             _enable_macos()
 
     def _enable_windows():
-        subprocess.call((
+        exit_code = subprocess.call((
             "cscript",
             _AUTOSTART_SHORTCUT_SCRIPT,
             _AUTOSTART_FILE,
             _LAUNCHER_PATH,
             os.path.dirname(_LAUNCHER_PATH)
         ))
+
+        if exit_code != 0:
+            log.error("Got non-zero exit code from shortcut script invocation ({0}.)".format(exit_code))
+            return
 
         persistent._masAutostart_metadata = ("windows", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
