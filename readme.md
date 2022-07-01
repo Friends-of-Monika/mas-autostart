@@ -43,9 +43,9 @@
 
 ## ✒️ Authors
 
-This submod was first brought up as a suggestion/idea by Sevi with its codebase created (programmed)
-by [@dreamscached](https://github.com/dreamscached) with face/pose expressions and dialogue review
-performed by [@my-otter-self](https://github.com/my-otter-self) 💛
+This submod was first brought up as a suggestion/idea by [Sevi](https://reddit.com/u/lost_localcat)
+with its codebase created (programmed) by [@dreamscached](https://github.com/dreamscached)
+with face/pose expressions and dialogue review performed by [@my-otter-self](https://github.com/my-otter-self) 💛
 
 <p align="center">
   <a href="https://github.com/friends-of-monika/mas-autostart/graphs/contributors">
