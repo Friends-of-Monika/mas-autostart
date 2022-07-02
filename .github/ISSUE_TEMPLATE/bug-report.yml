@@ -1,0 +1,49 @@
+name: 🐞 Bug Report
+description: Submit a report regarding something working improperly or not working at all
+title: "Bug: "
+labels: [ "bug" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for your report!
+        We appreciate your help and will do our best to resolve the issue as soon as we can!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: I was doing X, then suddenly Y happened and I think this is wrong because...
+    validations:
+      required: true
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Log or traceback output
+      description: If you got a log output from submod_log.log file or traceback screen with error details, paste its content here.
+      render: shell
+  - type: input
+    id: submod-version
+    attributes:
+      label: Submod version
+      description: What version of the submod do you have?
+    validations:
+      required: true
+  - type: input
+    id: mas-version
+    attributes:
+      label: Monika After Story version
+      description: What version of Monika After Story do you have?
+    validations:
+      required: true
+  - type: dropdown
+    id: mas-unstable
+    attributes:
+      label: Unstable
+      description: Are you running unstable version of MAS?
+      options:
+        - "Yes"
+        - "No"
+        - Unsure
+    validations:
+      required: true
