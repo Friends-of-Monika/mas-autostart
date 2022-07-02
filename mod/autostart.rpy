@@ -101,7 +101,10 @@ init python in masAutostart_api:
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/monika.after.story.plist")
 
     else:
-        log.warn("Unsupported platform (not Windows, Linux or Macintosh.)")
+        log.warn(
+            "Unsupported platform (not Windows, Linux or MacOS) - "
+            "autostart will not be working."
+        )
 
 
     ## Helpers
@@ -483,12 +486,20 @@ init 1000 python:
     ## for whatever reason.
 
     if persistent._masAutostart_enabled:
+        if store.masAutostart_api.is_platform_supported():
+            ## In case we previously hid disable topic, enable it
+            ## since we're on supported platform now and autostart is enabled.
+            mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
+
         if not store.masAutostart_api.is_platform_supported():
             store.masAutostart_log.warn(
                 "Autostart is known to be enabled, but "
                 "current platform is either unsupported or its support was deprecated. "
-                "Not changing enabled status, optimistically hoping this is temporare."
+                "Not changing enabled status, optimistically hoping this is temporare. "
+                "Disable topic will be hidden."
             )
+
+            mas_hideEVL("masAutostart_req_disable", "EVE", lock=True)
 
         elif not store.masAutostart_api.is_enabled():
             store.masAutostart_log.warn("Autostart is known to be enabled, but in fact it is not. Enabling it again.")
