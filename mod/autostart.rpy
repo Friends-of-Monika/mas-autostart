@@ -56,12 +56,27 @@ init python in masAutostart_api:
     ## Helpers ##
 
     def is_platform_supported():
+        """
+        Performs a check if platform game is currently running on is supported.
+
+        OUT:
+            True if Windows, Linux or MacOS, False otherwise.
+        """
+
         return renpy.windows or renpy.linux or renpy.macintosh
 
 
     ## Enable check functions ##
 
     def is_enabled():
+        """
+        Performs a check if autostart is currently **in fact** enabled by
+        calling corresponding platform-specific check function.
+
+        OUT:
+            True if autostart is enabled, False otherwise.
+        """
+
         if renpy.windows:
             return _is_enabled_windows()
 
@@ -75,12 +90,35 @@ init python in masAutostart_api:
             return False
 
     def _is_enabled_windows():
+        """
+        Performs a check if autostart is enabled (Windows-specific approach.)
+        Invoking this function while running on another platform results in
+        an undefined behaviour.
+
+        OUT:
+            True if autostart is enabled, False otherwise.
+        """
+
         if not os.path.exists(_AUTOSTART_FILE):
             return False
 
         return True
 
     def _is_enabled_linux():
+        """
+        Performs a check if autostart is enabled (Linux-specific approach.)
+        Invoking this function while running on another platform results in
+        an undefined behaviour.
+
+        NOTE:
+            Besides simple file presence check, this function also parses
+            .desktop file and checks if Exec parameter equals actual launcher
+            script path. In case of mismatch False will be returned.
+
+        OUT:
+            True if autostart is enabled, False otherwise.
+        """
+
         if not os.path.exists(_AUTOSTART_FILE):
             return False
 
@@ -102,6 +140,20 @@ init python in masAutostart_api:
         return True
 
     def _is_enabled_macos():
+        """
+        Performs a check if autostart is enabled (MacOS-specific approach.)
+        Invoking this function while running on another platform results in
+        an undefined behaviour.
+
+        NOTE:
+            Besides simple file presence check, this function also parses
+            .plist file and checks if ProgramArguments value equals actual
+            launcher script path. In case of mismatch False will be returned.
+
+        OUT:
+            True if autostart is enabled, False otherwise.
+        """
+
         if not os.path.exists(_AUTOSTART_FILE):
             return False
 
@@ -122,6 +174,14 @@ init python in masAutostart_api:
     ## Enable functions ##
 
     def enable():
+        """
+        Enables autostart by calling platform-specific function.
+
+        NOTE:
+            No-op if platform is unsupported (if is_platform_supported call
+            returned False.)
+        """
+
         if renpy.windows:
             _enable_windows()
 
@@ -132,6 +192,13 @@ init python in masAutostart_api:
             _enable_macos()
 
     def _enable_windows():
+        """
+        Enables autostart (Windows-specific approach.)
+
+        NOTE:
+            All errors are written to log and no exceptions are raised.
+        """
+
         exit_code = subprocess.call((
             "cscript",
             _AUTOSTART_SHORTCUT_SCRIPT,
@@ -148,6 +215,13 @@ init python in masAutostart_api:
 
 
     def _enable_linux():
+        """
+        Enables autostart (Linux-specific approach.)
+
+        NOTE:
+            All errors are written to log and no exceptions are raised.
+        """
+
         try:
             desktop_file = _map_file(_AUTOSTART_FILE_TEMPLATE, "r", _parse_desktop_file)
             desktop_file["Desktop Entry"]["Exec"] = _LAUNCHER_PATH
@@ -169,10 +243,18 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not write desktop file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            return
 
         persistent._masAutostart_metadata = ("linux", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
     def _enable_macos():
+        """
+        Enables autostart (MacOS-specific approach.)
+
+        NOTE:
+            All errors are written to log and no exceptions are raised.
+        """
+
         try:
             plist_file = _map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.parse)
             plist_file.find(".//array/string").text = _LAUNCHER_PATH
@@ -197,6 +279,7 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not write LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            return
 
         persistent._masAutostart_metadata = ("macos", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
@@ -204,10 +287,26 @@ init python in masAutostart_api:
     ## Disable functions ##
 
     def disable():
+        """
+        Disables autostart.
+
+        NOTE:
+            No-op if platform is unsupported (if is_platform_supported call
+            returned False.)
+        """
+
         if renpy.windows or renpy.linux or renpy.macintosh:
             _disable_delete_desktop_file()
 
     def _disable_delete_desktop_file():
+        """
+        Disables autostart (currently, the approach is uniform to all platforms)
+        by deleting autostart file.
+
+        NOTE:
+            All errors are written to log and no exceptions are raised.
+        """
+
         try:
             os.remove(_AUTOSTART_FILE)
 
@@ -222,6 +321,7 @@ init python in masAutostart_api:
             except OSError as e:
                 if e.errno != 2:
                     log.error("Could not delete " + _AUTOSTART_FILE + ".")
+                    return
 
             persistent._masAutostart_metadata = None
 
@@ -229,6 +329,19 @@ init python in masAutostart_api:
     ## Utility methods ##
 
     def _parse_desktop_file(fp):
+        """
+        Parses .desktop file from file stream and returns it as dictionary of
+        groups as keys (root/ungrouped keys are written directly to dictionary
+        root like groups.)
+
+        IN:
+            fp - readable file stream (file opened with "open" function in "r"
+            mode.)
+
+        OUT:
+            Parsed desktop file as dictionary.
+        """
+
         obj = dict()
 
         _group = None
@@ -261,18 +374,45 @@ init python in masAutostart_api:
                 param[_key] = _value
 
     def _serialize_desktop_file(fp, desktop_file):
-        if "" in desktop_file:
-            for _key, _value in desktop_file[""].items():
-                fp.write("{0}={1}\n".format(_key, _value))
+        """
+        Serializes desktop file dictionary (parsed with _parse_desktop_file)
+        to file stream.
 
-            fp.write("\n")
+        IN:
+            fp - writable file stream (file opened with "open" function in "w"
+            mode.)
+            desktop_file - desktop file dictionary (parsed with
+            _parse_desktop_file)
+        """
 
-        for _group in (_group for _group in desktop_file.keys() if _group != ""):
-            fp.write("[{0}]\n".format(_group))
-            for _key, _value in desktop_file[_group].items():
+        for _key, _value in desktop_file.items():
+            if type(_value) is dict:
+                fp.write("[{0}]\n".format(_group))
+                for _key, _value in _value.items():
+                    fp.write("{0}={1}\n".format(_key, _value))
+
+            else:
                 fp.write("{0}={1}\n".format(_key, _value))
 
     def _map_file(path, mode, fun, args=None):
+        """
+        Opens file at specific path in requsted mode and passes obtained
+        descriptor as first argument to provided function (optionally, with
+        additional parameters), closing the file after function returns,
+        returning its return value.
+
+        IN:
+            path - path to file to open.
+            mode - mode to open file in (see possible options in "open"
+            function.)
+            fun - function to pass file descriptor to.
+            args - list of additional positional parameters to pass after file
+            descriptor.
+
+        OUT:
+            Output of provided function.
+        """
+
         if args is None:
             args = list()
 
