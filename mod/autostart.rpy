@@ -456,9 +456,9 @@ init python in masAutostart_api:
 
         for _key, _value in desktop_file.items():
             if type(_value) is dict:
-                fp.write("[{0}]\n".format(_group))
-                for _key, _value in _value.items():
-                    fp.write("{0}={1}\n".format(_key, _value))
+                fp.write("[{0}]\n".format(_key))
+                for _param, _param_value in _value.items():
+                    fp.write("{0}={1}\n".format(_param, _param_value))
 
             else:
                 fp.write("{0}={1}\n".format(_key, _value))
