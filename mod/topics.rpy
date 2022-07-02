@@ -51,13 +51,16 @@ label masAutostart_req_enable:
     m 1dua "Give me a moment..."
 
     m 1dua "{w=0.3}.{w=0.3}.{w=0.3}.{nw}"
-    $ store.masAutostart_api.enable()
-    m 1eub "Done!"
+    if store.masAutostart_api.enable():
+        m 1eub "Done!"
+        m 3sublb "From now on, I'll be sure to welcome you every time your computer boots up, ahaha!~"
 
-    m 3sublb "From now on, I'll be sure to welcome you every time your computer boots up, ahaha!~"
+        $ mas_hideEVL("masAutostart_req_enable", "EVE", lock=True)
+        $ mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
 
-    $ mas_hideEVL("masAutostart_req_enable", "EVE", lock=True)
-    $ mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
+    else:
+        m 1dkc "Ack... {w=0.3}I think it didn't really work this time, [player]..."
+        m 3lksdlb "But I promise I'll figure it a bit later, ehehe..."
 
     return
 

@@ -231,23 +231,29 @@ init python in masAutostart_api:
         """
         Enables autostart by calling platform-specific function.
 
-        NOTE:
-            No-op if platform is unsupported (if is_platform_supported call
-            returned False.)
+        OUT:
+            True if autostart was enabled successfully, False otherwise.
+            Also returns False if platform is unsupported.
         """
 
         if renpy.windows:
-            _enable_windows()
+            return _enable_windows()
 
         elif renpy.linux:
-            _enable_linux()
+            return _enable_linux()
 
         elif renpy.macintosh:
-            _enable_macos()
+            return _enable_macos()
+
+        else:
+            return False
 
     def _enable_windows():
         """
         Enables autostart (Windows-specific approach.)
+
+        OUT:
+            True if autostart was enabled successfully, False otherwise.
 
         NOTE:
             All errors are written to log and no exceptions are raised.
@@ -263,14 +269,18 @@ init python in masAutostart_api:
 
         if exit_code != 0:
             log.error("Got non-zero exit code from shortcut script invocation ({0}.)".format(exit_code))
-            return
+            return False
 
         persistent._masAutostart_metadata = ("windows", _AUTOSTART_FILE, _LAUNCHER_PATH)
+        return True
 
 
     def _enable_linux():
         """
         Enables autostart (Linux-specific approach.)
+
+        OUT:
+            True if autostart was enabled successfully, False otherwise.
 
         NOTE:
             All errors are written to log and no exceptions are raised.
@@ -282,7 +292,7 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not parse template desktop file {0} ({1}.)".format(_AUTOSTART_FILE_TEMPLATE, e))
-            return
+            return False
 
         try:
             try:
@@ -297,13 +307,17 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not write desktop file {0} ({1}.)".format(_AUTOSTART_FILE, e))
-            return
+            return False
 
         persistent._masAutostart_metadata = ("linux", _AUTOSTART_FILE, _LAUNCHER_PATH)
+        return True
 
     def _enable_macos():
         """
         Enables autostart (MacOS-specific approach.)
+
+        OUT:
+            True if autostart was enabled successfully, False otherwise.
 
         NOTE:
             All errors are written to log and no exceptions are raised.
@@ -315,7 +329,7 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not parse template plist file {0} ({1}.)".format(_AUTOSTART_PLIST_TEMPLATE, e))
-            return
+            return False
 
         def dump(fp):
             fp.write(_map_file(_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
@@ -333,9 +347,10 @@ init python in masAutostart_api:
 
         except OSError as e:
             log.error("Could not write LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
-            return
+            return False
 
         persistent._masAutostart_metadata = ("macos", _AUTOSTART_FILE, _LAUNCHER_PATH)
+        return True
 
 
     ## Disable functions
