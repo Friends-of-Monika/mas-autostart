@@ -46,6 +46,13 @@
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
 
 
+## Troubleshooting
+
+If you stumbled upon a problem with this submod, feel free to ask us for help!
+[Open an issue](https://github.com/Friends-of-Monika/mas-autostart/issues/new?assignees=&labels=bug&template=bug-report.yml&title=Bug%3A+)
+or talk to us in [our Discord server](https://mon.icu/discord).
+
+
 ## ✒️ Authors
 
 This submod was first brought up as a suggestion/idea by [Sevi](https://reddit.com/u/lost_localcat)
