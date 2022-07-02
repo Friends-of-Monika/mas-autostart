@@ -48,6 +48,9 @@
 
 ## Troubleshooting
 
+* Check if you this submod is installed in `game\Submods\MAS Autostart Mod`
+  folder, **case-sensitive**!
+
 If you stumbled upon a problem with this submod, feel free to ask us for help!
 [Open an issue](https://github.com/Friends-of-Monika/mas-autostart/issues/new?assignees=&labels=bug&template=bug-report.yml&title=Bug%3A+)
 or talk to us in [our Discord server](https://mon.icu/discord).
