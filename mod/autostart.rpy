@@ -35,19 +35,19 @@ init python in masAutostart_api:
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
         _AUTOSTART_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
-        _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "shortcut.vbs")
+        _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods\\MAS Autostart Mod\\platform\\shortcut.vbs")
 
     elif renpy.linux:
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
-        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")), "autostart", "Monika After Story.desktop")
-        _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "Monika After Story.desktop")
+        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config/autostart/Monika After Story.desktop")))
+        _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
 
     elif renpy.macintosh:
         from xml.etree import ElementTree as xml
 
-        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "..", "..", "MacOS", "DDLC")
-        _AUTOSTART_FILE = os.path.join(os.path.expanduser("~"), "Library", "LaunchAgents", "monika.after.story.plist")
-        _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform", "monika.after.story.plist")
+        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "../../MacOS/DDLC")
+        _AUTOSTART_FILE = os.path.expanduser("~/Library/LaunchAgents/monika.after.story.plist")
+        _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/monika.after.story.plist")
 
     else:
         log.warn("Unsupported platform (not Windows, Linux or Macintosh.)")
