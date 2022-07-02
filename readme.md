@@ -50,6 +50,9 @@
 
 * Check if you this submod is installed in `game\Submods\MAS Autostart Mod`
   folder, **case-sensitive**!
+* Check if you have `DDLC.exe` (Windows), `DDLC.sh` (Linux) and
+  `DDLC.app/MacOS/DDLC` (MacOS) files! If you have them renamed, your OS won't
+  be able to launch MAS on start.
 
 If you stumbled upon a problem with this submod, feel free to ask us for help!
 [Open an issue](https://github.com/Friends-of-Monika/mas-autostart/issues/new?assignees=&labels=bug&template=bug-report.yml&title=Bug%3A+)
