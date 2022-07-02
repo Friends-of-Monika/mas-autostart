@@ -35,17 +35,66 @@ init python in masAutostart_api:
     if renpy.windows:
         import subprocess
 
+        ## Startup location on Windows is standard and is documented.
+        ## (See FOLDERID_Startup.)
+        ## https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
+        ##
+        ## It is located at %APPDAT%A\Microsoft\Windows\Start menu\Programs\Startup;
+        ## Links and executables located there will be run on startup (it is not
+        ## clear if they run prior to user login or not.)
+        ##
+        ## We're using simple VBScript file (see mod/platform/shortcut.vbs)
+        ## in order to create shortcut without involving additional dependencies
+        ## (see its invocation at _enable_windows.)
+        ##
+        ## As much as we know so far, VBScript engine is added to all Windows
+        ## desktop distributions starting from Windows 98.
+        ##
+        ## Successful tests conducted on Windows 10 21H2.
+
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
         _AUTOSTART_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods\\MAS Autostart Mod\\platform\\shortcut.vbs")
 
     elif renpy.linux:
+
+        ## Autostart location on Linux desktops is somewhat standard
+        ## (considering it so since most desktop environments comply with
+        ## Freedesktop standards) and is documented.
+        ## https://specifications.freedesktop.org/autostart-spec/autostart-spec-latest.html
+        ##
+        ## It is located at $XDG_CONFIG_HOME/autostart (note: $XDG_CONFIG_HOME
+        ## may easily be absent or not configured, by default it's ~/.config.)
+        ## .desktop files located there will be run as soon as user logs in and
+        ## starts their desktop session.
+        ##
+        ## We're using small .desktop file preset to parse it and populate with
+        ## necessary values, then write to corresponding location (see its
+        ## parsing and creation at _enable_linux.)
+        ##
+        ## Successful tests conducted on KDE Plasma 5.25, Arch Linux and
+        ## Ubuntu 22.04.
+
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
         _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config/autostart/Monika After Story.desktop")))
         _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
 
     elif renpy.macintosh:
         from xml.etree import ElementTree as xml
+
+        ## Autostart support for MacOS is implemented using s.c. 'LaunchAgent'
+        ## system which has documentation as well.
+        ## https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html
+        ##
+        ## LaunchAgent .plist files are located at ~/Library/LaunchAgents (note:
+        ## this directory may be missing but its absence does not indicate that
+        ## LaunchAgents are not supported/enabled on the system; it just needs
+        ## to be created.)
+        ## .plist files located there will be parsed and their ProgramArguments
+        ## will be executed as soon as user logs in.
+        ##
+        ## It is not clear what versions support this mechanism;
+        ## Successful tests conducted on MacOS Catalina 10.15.7.
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "../../MacOS/DDLC")
         _AUTOSTART_FILE = os.path.expanduser("~/Library/LaunchAgents/monika.after.story.plist")

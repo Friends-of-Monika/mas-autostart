@@ -37,6 +37,11 @@
 
          The only thing you should do is to drag and drop `game` from archive into
          DDLC folder and let your OS *merge folders* for you on its own.
+       * **MAKE SURE** you have `DDLC.exe` file in your DDLC folder if you are
+         using Windows; Linux users must ensure their `DDLC.sh` script is not
+         renamed too; MacOS users *usually* don't have to worry about that, but
+         in case any sort of problem arises, check if `DDLC` file in `MacOS` folder
+         inside DDLC.app package is present and not renamed.
   3. Start the game and enable random chatter &mdash; in order to see enable/disable
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
 
