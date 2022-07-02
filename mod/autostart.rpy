@@ -27,6 +27,8 @@ init python in masAutostart_api:
     ## Initialization ##
 
     import os
+    import errno
+
     import store.masAutostart_log as log
     from store import persistent as persistent
 
@@ -235,7 +237,7 @@ init python in masAutostart_api:
                 os.makedirs(os.path.dirname(_AUTOSTART_FILE))
 
             except OSError as e:
-                if e.errno != 17:
+                if e.errno != errno.EEXIST:
                     raise
 
             _map_file(_AUTOSTART_FILE, "w", _serialize_desktop_file, [desktop_file])
@@ -272,7 +274,7 @@ init python in masAutostart_api:
                 os.makedirs(os.path.dirname(_AUTOSTART_FILE))
 
             except OSError as e:
-                if e.errno != 17:
+                if e.errno != errno.EEXIST:
                     raise
 
             _map_file(_AUTOSTART_FILE, "w", dump)
@@ -311,7 +313,7 @@ init python in masAutostart_api:
             os.remove(_AUTOSTART_FILE)
 
         except OSError as e:
-            if e.errno != 2:
+            if e.errno != errno.ENOENT:
                 log.error("Could not delete " + _AUTOSTART_FILE + ".")
 
         if persistent._masAutostart_metadata is not None:
@@ -319,7 +321,7 @@ init python in masAutostart_api:
                 os.remove(persistent._masAutostart_metadata[1])
 
             except OSError as e:
-                if e.errno != 2:
+                if e.errno != errno.ENOENT:
                     log.error("Could not delete " + _AUTOSTART_FILE + ".")
                     return
 
