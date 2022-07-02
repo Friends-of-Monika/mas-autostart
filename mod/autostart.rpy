@@ -1,12 +1,12 @@
-# Using _masAutostart and not _mas_autostart to prevent collision
-# with _mas_ prefixes used by MAS itself.
+## Using _masAutostart and not _mas_autostart to prevent collision
+## with _mas_ prefixes used by MAS itself.
 define persistent._masAutostart_enabled = False
 define persistent._masAutostart_metadata = None
 
 
 init python in masAutostart_log:
 
-    ## Logging ##
+    ## Logging
 
     from store.mas_submod_utils import submod_log as log
 
@@ -24,7 +24,7 @@ init python in masAutostart_log:
 
 init python in masAutostart_api:
 
-    ## Initialization ##
+    ## Initialization
 
     import os
     import errno
@@ -55,7 +55,7 @@ init python in masAutostart_api:
         log.warn("Unsupported platform (not Windows, Linux or Macintosh.)")
 
 
-    ## Helpers ##
+    ## Helpers
 
     def is_platform_supported():
         """
@@ -68,7 +68,7 @@ init python in masAutostart_api:
         return renpy.windows or renpy.linux or renpy.macintosh
 
 
-    ## Enable check functions ##
+    ## Enable check functions
 
     def is_enabled():
         """
@@ -173,7 +173,7 @@ init python in masAutostart_api:
         return path == _LAUNCHER_PATH
 
 
-    ## Enable functions ##
+    ## Enable functions
 
     def enable():
         """
@@ -286,7 +286,7 @@ init python in masAutostart_api:
         persistent._masAutostart_metadata = ("macos", _AUTOSTART_FILE, _LAUNCHER_PATH)
 
 
-    ## Disable functions ##
+    ## Disable functions
 
     def disable():
         """
@@ -328,7 +328,7 @@ init python in masAutostart_api:
             persistent._masAutostart_metadata = None
 
 
-    ## Utility methods ##
+    ## Utility methods
 
     def _parse_desktop_file(fp):
         """
@@ -428,6 +428,11 @@ init python in masAutostart_api:
 
 
 init 1000 python:
+
+    ## Handle possible cases when user switches from supported platform to
+    ## unsupported or when autostart was enabled before but this time is isn't
+    ## for whatever reason.
+
     if persistent._masAutostart_enabled:
         if not store.masAutostart_api.is_platform_supported():
             store.masAutostart_log.warn(
