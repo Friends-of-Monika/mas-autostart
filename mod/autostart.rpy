@@ -76,7 +76,7 @@ init python in masAutostart_api:
         ## Ubuntu 22.04.
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
-        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config/autostart/Monika After Story.desktop")))
+        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart/Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
 
     elif renpy.macintosh:
