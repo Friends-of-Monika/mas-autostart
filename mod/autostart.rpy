@@ -75,7 +75,7 @@ init python in masAutostart_api:
         # (See FOLDERID_Startup.)
         # https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid
         #
-        # It is located at %APPDAT%A\Microsoft\Windows\Start menu\Programs\Startup;
+        # It is located at %APPDATA%\Microsoft\Windows\Start menu\Programs\Startup;
         # Links and executables located there will be run on startup (it is not
         # clear if they run prior to user login or not.)
         #
