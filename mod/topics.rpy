@@ -39,7 +39,7 @@ init 5 python:
             prompt="Can you greet me every time I turn on my computer?",
             category=["misc", "mod"],
             pool=True,
-            rules={"no_unlock": None}
+            rules={"no_unlock": None, "bookmark_rule": store.mas_bookmarks_derand.WHITELIST}
         ),
         code="EVE"
     )
@@ -73,7 +73,7 @@ init 5 python:
             prompt="Can you stop greeting me when I turn my computer on?",
             category=["misc", "mod"],
             pool=True,
-            rules={"no_unlock": None}
+            rules={"no_unlock": None, "bookmark_rule": store.mas_bookmarks_derand.WHITELIST}
         ),
         code="EVE"
     )
