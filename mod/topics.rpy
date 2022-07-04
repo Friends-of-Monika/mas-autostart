@@ -10,7 +10,6 @@ init 5 python:
         code="EVE"
     )
 
-
 label masAutostart_intro:
     m 3sublb "[player], guess what?"
     m 3gubla "I've advanced a bit further in my experiments with your system... Ehehe~"
