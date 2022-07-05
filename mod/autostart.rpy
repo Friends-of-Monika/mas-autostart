@@ -440,10 +440,12 @@ init python in masAutostart_api:
             All errors are written to log and no exceptions are raised.
         """
 
+        # Remove autostart file and ignore if it doesn't exist.
         try:
             os.remove(_AUTOSTART_FILE)
 
         except OSError as e:
+            # Ignore ENOENT (does not exist) error code.
             if e.errno != errno.ENOENT:
                 log.error("Could not delete " + _AUTOSTART_FILE + ".")
 
@@ -478,33 +480,48 @@ init python in masAutostart_api:
             Parsed desktop file as dictionary.
         """
 
+        # Root object containing root parameters and groups.
         obj = dict()
 
+        # Current group and parameters.
         _group = None
         param = dict()
 
+        # Build group object and push it to root object.
         def push_group():
+            # If current group is not set, write to root object.
             if _group is None:
                 obj.update(param)
+
+            # Store parameters to group in root object.
             else:
                 obj[_group] = param
 
+            # Reset state.
             _parse_desktop_file._group = None
             _parse_desktop_file.param = dict()
 
         while True:
+            # Parse file line by line.
             line = fp.readline()
             if not line:
+                # Hit EOF, build and push a group and return
+                # desktop file object.
                 push_group()
                 return obj
 
+            # Ignore empty lines and comments
             line = line.strip()
             if not line or line[0] == "#":
                 continue
 
+            # Recognize group header enclosed in [].
             if line[0] == "[" and line[-1] == "]":
                 push_group()
                 _group = line[1:-1]
+
+            # Anything that isn't a comment or a group header
+            # is a key=value pair; add it to current group.
             else:
                 _key, _, _value = line.partition("=")
                 param[_key] = _value
@@ -521,12 +538,19 @@ init python in masAutostart_api:
             _parse_desktop_file)
         """
 
+        # Scan keys and values in desktop file object.
         for _key, _value in desktop_file.items():
+            # If value is a dictionary, it's a group.
             if type(_value) is dict:
+                # Write header and output key=value pairs on next lines.
                 fp.write("[{0}]\n".format(_key))
                 for _param, _param_value in _value.items():
                     fp.write("{0}={1}\n".format(_param, _param_value))
 
+                # Add empty line after group.
+                fp.write("\n")
+
+            # Else it is a root-stored parameter.
             else:
                 fp.write("{0}={1}\n".format(_key, _value))
 
