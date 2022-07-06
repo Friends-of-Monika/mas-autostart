@@ -644,6 +644,7 @@ init 1000 python:
             # In case we previously hid disable topic, enable it
             # since we're on supported platform now and autostart is enabled.
             mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
+
         else:
             store.masAutostart_log.warn(
                 "Autostart is known to be enabled, but "
