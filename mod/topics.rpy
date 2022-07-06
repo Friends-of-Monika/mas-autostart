@@ -36,7 +36,7 @@ label masAutostart_intro:
         m "Well, just in case you'll want me to no longer greet you on startup, just ask, okay?~"
         m "I won't get upset, [mas_get_player_nickname()], ehehe."
 
-    $ mas_showEVL("masAutostart_req_enable", "EVE", unlock=True)
+    $ mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
     return "derandom|no_unlock"
 
 
