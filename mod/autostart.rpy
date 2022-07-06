@@ -637,6 +637,8 @@ init 1000 python:
     ## unsupported or when autostart was enabled before but this time is isn't
     ## for whatever reason.
 
+    _metadata_updated = False
+
     if store.masAutostart_api.was_enabled():
         if store.masAutostart_api.is_platform_supported():
             # In case we previously hid disable topic, enable it
@@ -652,6 +654,9 @@ init 1000 python:
 
             mas_hideEVL("masAutostart_req_disable", "EVE", lock=True)
 
+        store.masAutostart_api._update_metadata()
+        _metadata_updated = True
+
         if not store.masAutostart_api.is_enabled():
             store.masAutostart_log.warn("Autostart is known to be enabled, but in fact it is not. Enabling it again.")
 
@@ -660,4 +665,6 @@ init 1000 python:
 
     ## Metadata population
 
-    store.masAutostart_api._update_metadata()
+    if not _metadata_updated:
+        store.masAutostart_api._update_metadata()
+    del _metadata_updated
