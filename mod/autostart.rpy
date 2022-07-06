@@ -512,6 +512,8 @@ init python in masAutostart_api:
             if e.errno != errno.ENOENT:
                 log.error("Could not delete " + _AUTOSTART_FILE + ".")
 
+        persistent._masAutostart_enabled = False
+
         # If there is metadata saved, remove all the leftovers and wipe variable.
         if persistent._masAutostart_metadata is not None:
             try:
