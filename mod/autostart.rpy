@@ -406,14 +406,14 @@ init python in masAutostart_api:
             List of paths of valid autostart files.
         """
 
-        files = list()
+        autostart_files = list()
         for cd, _, files in os.walk(_AUTOSTART_DIR):
             for _file in files:
                 _file = os.path.join(cd, _file)
                 if _check_shortcut(_file):
-                    files.append(_file)
+                    autostart_files.append(_file)
 
-        return files
+        return autostart_files
 
     def _update_metadata():
         """
@@ -428,6 +428,10 @@ init python in masAutostart_api:
 
         if len(files) > 0:
             persistent._masAutostart_metadata = (_PLATFORM_CURRENT, files[0], _LAUNCHER_PATH)
+            persistent._masAutostart_enabled = True
+
+        else:
+            persistent._masAutostart_enabled = False
 
 
     # Utility methods
@@ -656,4 +660,4 @@ init 1000 python:
 
     ## Metadata population
 
-    _update_metadata()
+    store.masAutostart_api._update_metadata()
