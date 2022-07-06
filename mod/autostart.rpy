@@ -89,7 +89,8 @@ init python in masAutostart_api:
         # Successful tests conducted on Windows 10 21H2.
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
-        _AUTOSTART_FILE = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Monika After Story.lnk")
+        _AUTOSTART_DIR = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+        _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods\\MAS Autostart Mod\\platform\\shortcut.vbs")
 
     elif renpy.linux:
@@ -112,7 +113,8 @@ init python in masAutostart_api:
         # Ubuntu 22.04.
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
-        _AUTOSTART_FILE = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart/Monika After Story.desktop")
+        _AUTOSTART_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart")
+        _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
 
     elif renpy.macintosh:
@@ -133,7 +135,8 @@ init python in masAutostart_api:
         # Successful tests conducted on MacOS Catalina 10.15.7.
 
         _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "../../MacOS/DDLC")
-        _AUTOSTART_FILE = os.path.expanduser("~/Library/LaunchAgents/monika.after.story.plist")
+        _AUTOSTART_DIR = os.path.expanduser("~/Library/LaunchAgents")
+        _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/monika.after.story.plist")
 
     else:
@@ -189,10 +192,41 @@ init python in masAutostart_api:
             True if autostart is enabled, False otherwise.
         """
 
-        if not os.path.exists(_AUTOSTART_FILE):
-            return False
+        def check_shortcut(path):
+            try:
+                target_path = subprocess.check_output((
+                    "cscript",  # VBScript interpreter command
+                    _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
+                    _AUTOSTART_FILE  # Path to autostart shortcut
+                ))
 
-        return True
+                if target_path != _LAUNCHER_PATH:
+                    return False
+
+            except subprocess.CalledProcessError as e:
+                log.error(
+                    "Could not check shortcut " + path + "; "
+                    "shortcut script returned non-zero exit code " + str(e.returncode)
+                )
+                return False
+
+            return True
+
+        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
+            persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
+            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
+
+        else:
+            for cd, _, files in os.walk(_AUTOSTART_DIR):
+                for _file in files:
+                    if not _file.lower().endswith(".lnk"):
+                        continue
+
+                    if check_shortcut(os.path.join(cd, _file)):
+                        persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _file, _LAUNCHER_PATH)
+                        return True
+
+        return False
 
     def _is_enabled_linux():
         """
@@ -209,26 +243,39 @@ init python in masAutostart_api:
             True if autostart is enabled, False otherwise.
         """
 
-        if not os.path.exists(_AUTOSTART_FILE):
-            return False
+        def check_shortcut(path):
+            # Parse autostart .desktop file into dictionary.
+            try:
+                desktop_file = _map_file(path, "r", _parse_desktop_file)
 
-        # Parse autostart .desktop file into dictionary.
-        try:
-            desktop_file = _map_file(_AUTOSTART_FILE, "r", _parse_desktop_file)
+            except IOError as e:
+                log.error("Could not parse desktop file " + path + ".")
+                return False
 
-        except IOError as e:
-            log.error("Could not parse desktop file " + _AUTOSTART_FILE + ".")
-            return False
+            # Check that desktop file is valid (has Desktop Entry and Exec)
+            if "Desktop Entry" not in desktop_file or "Exec" not in desktop_file["Desktop Entry"]:
+                log.error("Could not parse .desktop file {0} ({1}.)".format(path, e))
+                return False
 
-        # Check that desktop file is valid (has Desktop Entry and Exec)
-        if "Desktop Entry" not in desktop_file or "Exec" not in desktop_file["Desktop Entry"]:
-            log.error("File " + _AUTOSTART_FILE + " exists, but is not a valid desktop file.")
-            return False
+            # Check if Exec is pointing at launcher script.
+            if desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
+                return False
 
-        # Check if Exec is pointing at launcher script.
-        if desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
-            log.error("File " + _AUTOSTART_FILE + " exists, but points to wrong location.")
-            return False
+            return True
+
+        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
+            persistent._masAutostart_metadata = (_PLATFORM_LINUX, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
+            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
+
+        else:
+            for cd, _, files in os.walk(_AUTOSTART_DIR):
+                for _file in files:
+                    if not _file.lower().endswith(".desktop"):
+                        continue
+
+                    if check_shortcut(os.path.join(cd, _file)):
+                        persistent._masAutostart_metadata = (_PLATFORM_LINUX, _file, _LAUNCHER_PATH)
+                        return True
 
         return True
 
@@ -247,25 +294,41 @@ init python in masAutostart_api:
             True if autostart is enabled, False otherwise.
         """
 
-        if not os.path.exists(_AUTOSTART_FILE):
-            return False
+        def check_shortcut(path):
+            # Parse autostart .plist file into XML document.
+            try:
+                plist_file = _map_file(path, "r", xml.fromstring)
 
-        # Parse autostart .plist file into XML document.
-        try:
-            plist_file = _map_file(_AUTOSTART_FILE, "r", xml.fromstring)
+            except OSError as e:
+                log.error("Could not parse LaunchAgent file {0} ({1}.)".format(path, e))
+                return
 
-        except OSError as e:
-            log.error("Could not parse LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
-            return
+            # Check if XML document has ProgramArguments with single string element.
+            path = plist_file.find(".//array/string")
+            if not path:
+                return False
 
-        # Check if XML document has ProgramArguments with single string element.
-        path = plist_file.find(".//array/string")
-        if not path:
-            return False
+            # Check if .plist refers to launcher executable.
+            if path != _LAUNCHER_PATH:
+                return False
 
-        # Check if .plist refers to launcher executable.
-        return path == _LAUNCHER_PATH
+            return True
 
+        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
+            persistent._masAutostart_metadata = (_PLATFORM_MACOS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
+            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
+
+        else:
+            for cd, _, files in os.walk(_AUTOSTART_DIR):
+                for _file in files:
+                    if not _file.lower().endswith(".plist"):
+                        continue
+
+                    if check_shortcut(os.path.join(cd, _file)):
+                        persistent._masAutostart_metadata = (_PLATFORM_MACOS, _file, _LAUNCHER_PATH)
+                        return True
+
+        return True
 
     # Enable functions
 
