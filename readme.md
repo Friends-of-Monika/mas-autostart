@@ -46,7 +46,7 @@
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
 
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 * Check if you this submod is installed in `game\Submods\MAS Autostart Mod`
   folder, **case-sensitive**!
