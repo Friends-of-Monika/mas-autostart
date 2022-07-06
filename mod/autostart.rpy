@@ -93,6 +93,8 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods\\MAS Autostart Mod\\platform\\shortcut.vbs")
 
+        _PLATFORM_CURRENT = _PLATFORM_WINDOWS
+
     elif renpy.linux:
 
         # Autostart location on Linux desktops is somewhat standard
@@ -117,6 +119,8 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
 
+        _PLATFORM_CURRENT = _PLATFORM_LINUX
+
     elif renpy.macintosh:
         from xml.etree import ElementTree as xml
 
@@ -139,11 +143,15 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/monika.after.story.plist")
 
+        _PLATFORM_CURRENT = _PLATFORM_MACOS
+
     else:
         log.warn(
             "Unsupported platform (not Windows, Linux or MacOS) - "
             "autostart will not be working."
         )
+
+        _PLATFORM_CURRENT = None
 
 
     # Helpers
@@ -163,172 +171,25 @@ init python in masAutostart_api:
 
     def is_enabled():
         """
-        Performs a check if autostart is currently **in fact** enabled by
-        calling corresponding platform-specific check function.
+        Tells if autostart is currently enabled.
 
         OUT:
             True if autostart is enabled, False otherwise.
         """
 
-        if renpy.windows:
-            return _is_enabled_windows()
+        return persistent._masAutostart_enabled
 
-        elif renpy.linux:
-            return _is_enabled_linux()
-
-        elif renpy.macintosh:
-            return _is_enabled_macos()
-
-        else:
-            return False
-
-    def _is_enabled_windows():
+    def was_enabled():
         """
-        Performs a check if autostart is enabled (Windows-specific approach.)
-        Invoking this function while running on another platform results in
-        an undefined behaviour.
+        Tells if autostart was enabled by player before (but it might not
+        necessarily be enabled right now due to another platform, unsupported
+        or deprecated platform or because autostart file is absent currently.)
 
         OUT:
-            True if autostart is enabled, False otherwise.
+            True if autostart was enabled, False otherwise.
         """
 
-        def check_shortcut(path):
-            try:
-                target_path = subprocess.check_output((
-                    "cscript",  # VBScript interpreter command
-                    _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
-                    _AUTOSTART_FILE  # Path to autostart shortcut
-                ))
-
-                if target_path != _LAUNCHER_PATH:
-                    return False
-
-            except subprocess.CalledProcessError as e:
-                log.error(
-                    "Could not check shortcut " + path + "; "
-                    "shortcut script returned non-zero exit code " + str(e.returncode)
-                )
-                return False
-
-            return True
-
-        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
-            persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
-            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
-
-        else:
-            for cd, _, files in os.walk(_AUTOSTART_DIR):
-                for _file in files:
-                    if not _file.lower().endswith(".lnk"):
-                        continue
-
-                    if check_shortcut(os.path.join(cd, _file)):
-                        persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _file, _LAUNCHER_PATH)
-                        return True
-
-        return False
-
-    def _is_enabled_linux():
-        """
-        Performs a check if autostart is enabled (Linux-specific approach.)
-        Invoking this function while running on another platform results in
-        an undefined behaviour.
-
-        NOTE:
-            Besides simple file presence check, this function also parses
-            .desktop file and checks if Exec parameter equals actual launcher
-            script path. In case of mismatch False will be returned.
-
-        OUT:
-            True if autostart is enabled, False otherwise.
-        """
-
-        def check_shortcut(path):
-            # Parse autostart .desktop file into dictionary.
-            try:
-                desktop_file = _map_file(path, "r", _parse_desktop_file)
-
-            except IOError as e:
-                log.error("Could not parse desktop file " + path + ".")
-                return False
-
-            # Check that desktop file is valid (has Desktop Entry and Exec)
-            if "Desktop Entry" not in desktop_file or "Exec" not in desktop_file["Desktop Entry"]:
-                log.error("Could not parse .desktop file {0} ({1}.)".format(path, e))
-                return False
-
-            # Check if Exec is pointing at launcher script.
-            if desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
-                return False
-
-            return True
-
-        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
-            persistent._masAutostart_metadata = (_PLATFORM_LINUX, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
-            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
-
-        else:
-            for cd, _, files in os.walk(_AUTOSTART_DIR):
-                for _file in files:
-                    if not _file.lower().endswith(".desktop"):
-                        continue
-
-                    if check_shortcut(os.path.join(cd, _file)):
-                        persistent._masAutostart_metadata = (_PLATFORM_LINUX, _file, _LAUNCHER_PATH)
-                        return True
-
-        return True
-
-    def _is_enabled_macos():
-        """
-        Performs a check if autostart is enabled (MacOS-specific approach.)
-        Invoking this function while running on another platform results in
-        an undefined behaviour.
-
-        NOTE:
-            Besides simple file presence check, this function also parses
-            .plist file and checks if ProgramArguments value equals actual
-            launcher script path. In case of mismatch False will be returned.
-
-        OUT:
-            True if autostart is enabled, False otherwise.
-        """
-
-        def check_shortcut(path):
-            # Parse autostart .plist file into XML document.
-            try:
-                plist_file = _map_file(path, "r", xml.fromstring)
-
-            except OSError as e:
-                log.error("Could not parse LaunchAgent file {0} ({1}.)".format(path, e))
-                return
-
-            # Check if XML document has ProgramArguments with single string element.
-            path = plist_file.find(".//array/string")
-            if not path:
-                return False
-
-            # Check if .plist refers to launcher executable.
-            if path != _LAUNCHER_PATH:
-                return False
-
-            return True
-
-        if os.path.exists(_DEFAULT_AUTOSTART_FILE):
-            persistent._masAutostart_metadata = (_PLATFORM_MACOS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
-            return check_shortcut(_DEFAULT_AUTOSTART_FILE)
-
-        else:
-            for cd, _, files in os.walk(_AUTOSTART_DIR):
-                for _file in files:
-                    if not _file.lower().endswith(".plist"):
-                        continue
-
-                    if check_shortcut(os.path.join(cd, _file)):
-                        persistent._masAutostart_metadata = (_PLATFORM_MACOS, _file, _LAUNCHER_PATH)
-                        return True
-
-        return True
+        return persistent._masAutostart_metadata is not None
 
     # Enable functions
 
@@ -369,7 +230,7 @@ init python in masAutostart_api:
         exit_code = subprocess.call((
             "cscript",  # VBScript interpreter command
             _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
-            _AUTOSTART_FILE,  # Path to autostart shortcut
+            _DEFAULT_AUTOSTART_FILE,  # Path to autostart shortcut
             _LAUNCHER_PATH,  # Path to launcher executable
             os.path.dirname(_LAUNCHER_PATH)  # Working dir (DDLC folder)
         ))
@@ -380,9 +241,9 @@ init python in masAutostart_api:
             log.error("Got non-zero exit code from shortcut script invocation ({0}.)".format(exit_code))
             return False
 
-        # Write metadata variable and set status variable.
+        # Write meta variables.
         persistent._masAutostart_enabled = True
-        persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _AUTOSTART_FILE, _LAUNCHER_PATH)
+        persistent._masAutostart_metadata = (_PLATFORM_WINDOWS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
         return True
 
 
@@ -411,22 +272,22 @@ init python in masAutostart_api:
         try:
             # Create autostart location if it doesn't exist.
             try:
-                os.makedirs(os.path.dirname(_AUTOSTART_FILE))
+                os.makedirs(os.path.dirname(_DEFAULT_AUTOSTART_FILE))
 
             except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
 
             # Serialize and write .desktop file; toggle status variable.
-            _map_file(_AUTOSTART_FILE, "w", _serialize_desktop_file, [desktop_file])
-            persistent._masAutostart_enabled = True
+            _map_file(_DEFAULT_AUTOSTART_FILE, "w", _serialize_desktop_file, [desktop_file])
 
         except OSError as e:
-            log.error("Could not write desktop file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            log.error("Could not write desktop file {0} ({1}.)".format(_DEFAULT_AUTOSTART_FILE, e))
             return False
 
-        # Write metadata variable.
-        persistent._masAutostart_metadata = (_PLATFORM_LINUX, _AUTOSTART_FILE, _LAUNCHER_PATH)
+        # Write meta variables.
+        persistent._masAutostart_enabled = True
+        persistent._masAutostart_metadata = (_PLATFORM_LINUX, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
         return True
 
     def _enable_macos():
@@ -453,7 +314,7 @@ init python in masAutostart_api:
         # Helper function for use with _map_file that reads header (with XML
         # tag and schema) because ETree doesn't handle it.
         def dump(fp):
-            fp.write(_map_file(_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
+            fp.write(_map_file(_DEFAULT_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
             plist_file.write(fp)
 
         # Write actual autostart .plist LaunchAgent file to its
@@ -461,22 +322,22 @@ init python in masAutostart_api:
         try:
             # Create autostart location if it doesn't exist.
             try:
-                os.makedirs(os.path.dirname(_AUTOSTART_FILE))
+                os.makedirs(os.path.dirname(_DEFAULT_AUTOSTART_FILE))
 
             except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
 
-            # Serialize and write .plist file; toggle status variable.
-            _map_file(_AUTOSTART_FILE, "w", dump)
-            persistent._masAutostart_enabled = True
+            # Serialize and write .plist file.
+            _map_file(_DEFAULT_AUTOSTART_FILE, "w", dump)
 
         except OSError as e:
-            log.error("Could not write LaunchAgent file {0} ({1}.)".format(_AUTOSTART_FILE, e))
+            log.error("Could not write LaunchAgent file {0} ({1}.)".format(persistent._masAutostart_metadata[1], e))
             return False
 
-        # Write metadata variable.
-        persistent._masAutostart_metadata = (_PLATFORM_MACOS, _AUTOSTART_FILE, _LAUNCHER_PATH)
+        # Write meta variables.
+        persistent._masAutostart_enabled = True
+        persistent._masAutostart_metadata = (_PLATFORM_MACOS, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
         return True
 
 
@@ -505,12 +366,12 @@ init python in masAutostart_api:
 
         # Remove autostart file and ignore if it doesn't exist.
         try:
-            os.remove(_AUTOSTART_FILE)
+            os.remove(persistent._masAutostart_metadata[1])
 
         except OSError as e:
             # Ignore ENOENT (does not exist) error code.
             if e.errno != errno.ENOENT:
-                log.error("Could not delete " + _AUTOSTART_FILE + ".")
+                log.error("Could not delete " + persistent._masAutostart_metadata[1] + ".")
 
         persistent._masAutostart_enabled = False
 
@@ -522,11 +383,51 @@ init python in masAutostart_api:
             except OSError as e:
                 # Silence ENOENT (does not exist) error.
                 if e.errno != errno.ENOENT:
-                    log.error("Could not delete " + _AUTOSTART_FILE + ".")
+                    log.error("Could not delete " + persistent._masAutostart_metadata[1] + ".")
                     return
 
             # Wipe metadata variable.
             persistent._masAutostart_metadata = None
+
+
+    ## Existing autostart file detection
+
+    def _find_autostart_files():
+        """
+        Scans autostart directory for current platform and returns list of
+        paths that are valid autostart files for MAS.
+
+        NOTE:
+            Calling this function on an unsupported platform will lead to
+            undefined behaviour. All errors are written to log and no exceptions
+            are raised.
+
+        OUT:
+            List of paths of valid autostart files.
+        """
+
+        files = list()
+        for cd, _, files in os.walk(_AUTOSTART_DIR):
+            for _file in files:
+                _file = os.path.join(cd, _file)
+                if _check_shortcut(_file):
+                    files.append(_file)
+
+        return files
+
+    def _update_metadata():
+        """
+        Scans autostart directory and updates metadata if autostart files exist.
+
+        NOTE:
+            Calling this function on an unsupported platform will lead to
+            undefined behaviour.
+        """
+
+        files = _find_autostart_files()
+
+        if len(files) > 0:
+            persistent._masAutostart_metadata = (_PLATFORM_CURRENT, files[0], _LAUNCHER_PATH)
 
 
     # Utility methods
@@ -650,19 +551,94 @@ init python in masAutostart_api:
             fp.close()
 
 
+    ## Platform-dependent utility functions
+
+    if renpy.windows:
+        def _check_shortcut(path):
+            if not path.lower().endswith(".lnk"):
+                return False
+
+            try:
+                target_path = subprocess.check_output((
+                    "cscript",  # VBScript interpreter command
+                    "/nologo",  # Exclude Microsoft banner
+                    _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
+                    path  # Path to autostart shortcut
+                ))
+
+                if target_path.strip() != _LAUNCHER_PATH:
+                    return False
+
+            except subprocess.CalledProcessError as e:
+                log.error(
+                    "Could not check shortcut " + path + "; "
+                    "shortcut script returned non-zero exit code " + str(e.returncode)
+                )
+                return False
+
+            return True
+
+    elif renpy.linux:
+        def _check_shortcut(path):
+            if not path.lower().endswith(".desktop"):
+                return False
+
+            # Parse autostart .desktop file into dictionary.
+            try:
+                desktop_file = _map_file(path, "r", _parse_desktop_file)
+
+            except IOError as e:
+                log.error("Could not parse desktop file " + path + ".")
+                return False
+
+            # Check that desktop file is valid (has Desktop Entry and Exec)
+            if "Desktop Entry" not in desktop_file or "Exec" not in desktop_file["Desktop Entry"]:
+                log.error("Could not parse .desktop file {0} ({1}.)".format(path, e))
+                return False
+
+            # Check if Exec is pointing at launcher script.
+            if desktop_file["Desktop Entry"]["Exec"] != _LAUNCHER_PATH:
+                return False
+
+            return True
+
+    elif renpy.macintosh:
+        def _check_shortcut(path):
+            if not path.lower().endswith(".plist"):
+                return False
+
+            # Parse autostart .plist file into XML document.
+            try:
+                plist_file = _map_file(path, "r", xml.fromstring)
+
+            except OSError as e:
+                log.error("Could not parse LaunchAgent file {0} ({1}.)".format(path, e))
+                return
+
+            # Check if XML document has ProgramArguments with single string element.
+            path = plist_file.find(".//array/string")
+            if not path:
+                return False
+
+            # Check if .plist refers to launcher executable.
+            if path != _LAUNCHER_PATH:
+                return False
+
+            return True
+
+
 init 1000 python:
 
-    # Handle possible cases when user switches from supported platform to
-    # unsupported or when autostart was enabled before but this time is isn't
-    # for whatever reason.
+    ## Handle possible cases when user switches from supported platform to
+    ## unsupported or when autostart was enabled before but this time is isn't
+    ## for whatever reason.
 
-    if persistent._masAutostart_enabled:
+    if store.masAutostart_api.was_enabled():
         if store.masAutostart_api.is_platform_supported():
             # In case we previously hid disable topic, enable it
             # since we're on supported platform now and autostart is enabled.
             mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
-
-        if not store.masAutostart_api.is_platform_supported():
+        else:
             store.masAutostart_log.warn(
                 "Autostart is known to be enabled, but "
                 "current platform is either unsupported or its support was deprecated. "
@@ -672,8 +648,12 @@ init 1000 python:
 
             mas_hideEVL("masAutostart_req_disable", "EVE", lock=True)
 
-        elif not store.masAutostart_api.is_enabled():
+        if not store.masAutostart_api.is_enabled():
             store.masAutostart_log.warn("Autostart is known to be enabled, but in fact it is not. Enabling it again.")
 
             store.masAutostart_api.disable()
             store.masAutostart_api.enable()
+
+    ## Metadata population
+
+    _update_metadata()
