@@ -179,7 +179,7 @@ init python in masAutostart_api:
 
         return persistent._masAutostart_enabled
 
-    def was_enabled():
+    def _was_enabled():
         """
         Tells if autostart was enabled by player before (but it might not
         necessarily be enabled right now due to another platform, unsupported
@@ -639,7 +639,7 @@ init 1000 python:
 
     _metadata_updated = False
 
-    if store.masAutostart_api.was_enabled():
+    if store.masAutostart_api._was_enabled():
         if store.masAutostart_api.is_platform_supported():
             # In case we previously hid disable topic, enable it
             # since we're on supported platform now and autostart is enabled.
