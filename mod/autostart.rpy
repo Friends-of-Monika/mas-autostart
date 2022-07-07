@@ -406,9 +406,11 @@ init python in masAutostart_api:
             List of paths of valid autostart files.
         """
 
+        # Walk through autostart directory and check for suitable files.
         autostart_files = list()
         for cd, _, files in os.walk(_AUTOSTART_DIR):
             for _file in files:
+                # Convert to absolute path and check.
                 _file = os.path.join(cd, _file)
                 if _check_shortcut(_file):
                     autostart_files.append(_file)
@@ -431,6 +433,7 @@ init python in masAutostart_api:
             persistent._masAutostart_enabled = True
 
         else:
+            # Do not remove metadata in order for _was_enabled() to work.
             persistent._masAutostart_enabled = False
 
 
