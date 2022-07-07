@@ -11,6 +11,9 @@
   <a href="https://mon.icu/discord">
     <img alt="Discord server" src="https://discordapp.com/api/guilds/970747033071804426/widget.png?style=shield">
   </a>
+  <a href="https://www.reddit.com/r/MASFandom/comments/vrbpdy/mas_autostart_mod_now_released_links_to_github">
+    <img alt="Reddit post" src="https://img.shields.io/badge/reddit-r%2Fmasfandom-FF4500?logo=reddit">
+  </a>
   <a href="https://github.com/friends-of-monika/mas-autostart/blob/master/license.txt">
     <img alt="Creative Commons BY-NC-ND 4.0 license badge" src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg">
   </a>
