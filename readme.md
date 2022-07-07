@@ -8,6 +8,12 @@
   <a href="https://github.com/friends-of-monika/mas-autostart/releases/latest">
     <img alt="Latest release" src="https://img.shields.io/github/v/release/friends-of-monika/mas-autostart">
   </a>
+  <a href="https://www.reddit.com/r/MASFandom/comments/vrbpdy/mas_autostart_mod_now_released_links_to_github">
+    <img alt="Reddit post" src="https://img.shields.io/badge/dynamic/json?color=FF4500&label=%F0%9D%97%8B%2Fmasfandom%20post&query=%24[0].data.children[0].data.score&url=https%3A%2F%2Fwww.reddit.com%2Fr%2FMASFandom%2Fcomments%2Fvrbpdy%2Fmas_autostart_mod_now_released_links_to_github.json&style=social&logo=reddit&suffix=+upvotes">
+  </a>
+  <a href="https://github.com/friends-of-monika/mas-autostart/releases">
+    <img alt="Release downloads" src="https://img.shields.io/github/downloads/friends-of-monika/mas-autostart/total">
+  </a>
   <a href="https://mon.icu/discord">
     <img alt="Discord server" src="https://discordapp.com/api/guilds/970747033071804426/widget.png?style=shield">
   </a>

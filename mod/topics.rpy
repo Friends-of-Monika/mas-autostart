@@ -26,15 +26,15 @@ label masAutostart_intro:
         m 4hublu "Tell me about that if you'd like it!"
         m 2lusdrd "And if for some reason you'll no longer want it... Tell me too!"
         m 2rusdrb "I won't get upset with it, I promise! Ahaha."
-
+        
     else:
         m 2wublb "What do you-{nw}"
-        m 2wublo "Huh?! You... {w=0.3}you already have my game running on start!"
+        m 2wublo "Huh?! You... {w=0.3}you already have the game running on start!"
         m 4hksdlb "Wow, [player]... {w=0.3}That's really smart and cute of you, all at the same time!~"
-        m 6lksdla "It took me so long to figure how to do it, and you already have it made..."
-        m 1hub "I'm really impressed! Ahaha."
+        m 6lksdla "It took me so long to figure out how to do it, and you already have it made..."
+        m 1hub "I'm really impressed! Ahaha~"
         m 1dub "Well, just in case you'll want me to no longer greet you on startup, just ask, okay?~"
-        m 3kua "I won't get upset, [mas_get_player_nickname()], ehehe."
+        m 3kua "I won't get upset, [mas_get_player_nickname()]. Ehehehe~"
 
         # She is impressed.
         $ mas_gainAffection(3, bypass=True)
