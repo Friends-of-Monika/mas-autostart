@@ -28,6 +28,8 @@
   * Windows, Linux and MacOS &mdash; all supported!
   * Auto-start switch flip that isn't immersion breaking &mdash;
     ask your Monika to enable or disable it through 'Hey, Monika...' menu!
+  * Already have autostart enabled somehow? Submod is able to detect some of the
+    common approaches and will hook into it if possible.
 
 
 ## ❓ Download and install instructions
