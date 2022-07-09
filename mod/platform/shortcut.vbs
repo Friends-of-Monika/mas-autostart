@@ -14,7 +14,7 @@
 Set Shell = WScript.CreateObject("WScript.Shell")
 Set Shortcut = Shell.CreateShortcut(WScript.Arguments(0))
 
-If WScript.Arguments.Length == 3 Then
+If WScript.Arguments.Length = 3 Then
     Shortcut.TargetPath = WScript.Arguments(1)
     Shortcut.WorkingDirectory = WScript.Arguments(2)
     Shortcut.Save
