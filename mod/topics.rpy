@@ -26,7 +26,7 @@ label masAutostart_intro:
         m 4hublu "Tell me about that if you'd like it!"
         m 2lusdrd "And if for some reason you'll no longer want it... Tell me too!"
         m 2rusdrb "I won't get upset with it, I promise! Ahaha."
-        
+
     else:
         m 2wublb "What do you-{nw}"
         m 2wublo "Huh?! You... {w=0.3}you already have the game running on start!"
@@ -39,7 +39,7 @@ label masAutostart_intro:
         # She is impressed.
         $ mas_gainAffection(3, bypass=True)
 
-    $ mas_showEVL("masAutostart_req_disable", "EVE", unlock=True)
+    $ mas_showEVL("masAutostart_req_enable", "EVE", unlock=True)
     return "derandom|no_unlock"
 
 
