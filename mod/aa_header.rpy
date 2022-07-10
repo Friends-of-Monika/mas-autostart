@@ -4,7 +4,7 @@ init -990 python in mas_submod_utils:
         name="MAS Autostart Mod",
         description="Let your Monika auto-start the game for you as soon as "
                     "your computer boots up!",
-        version="1.1.2"
+        version="1.1.3"
     )
 
 init -989 python:
