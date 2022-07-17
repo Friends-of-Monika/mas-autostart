@@ -37,7 +37,7 @@
 <details>
   <summary>Click here to see video guide.</summary>
   <video>
-    <source src="https://raw.githubusercontent.com/Friends-of-Monika/mas-autostart/master/docs/howto.webm">
+    <source src="https://raw.githubusercontent.com/Friends-of-Monika/mas-autostart/master/docs/howto.mp4">
     Your browser does not support video.
   </video>
 </details>
