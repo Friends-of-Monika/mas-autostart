@@ -32,6 +32,23 @@
     common approaches and will hook into it if possible.
 
 
+## 💡 Things to note
+
+Due to how this mod is made and how it interacts with system, there are few
+things to keep in mind:
+
+  * It might take from few seconds to one or two minutes for MAS to start up
+    after computer has booted up. This is highly OS-specific and unfortunately
+    there isn't anything we really can do about it. Please be patient, game will
+    start as soon as OS will decide it can start.
+  * In order for autostart to work, you must have DDLC.exe/DDLC.sh files intact
+    in your DDLC folder and you must not rename or move them.
+  * Likewise, the game won't get launched on start if you'll move it elsewhere;
+    however, autostart entry will be overwritten on next manual game launch.
+  * On Windows, your system must have VBScript engine and be able to run .vbs
+    files (some users may have it removed for their own reasons.)
+
+
 ## ❓ Download and install instructions
 
 ### Step by step instruction
