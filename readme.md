@@ -34,6 +34,14 @@
 
 ## ❓ Download and install instructions
 
+<details>
+  <summary>Click here to see video guide.</summary>
+  <video>
+    <source src="https://raw.githubusercontent.com/Friends-of-Monika/mas-autostart/master/docs/howto.webm">
+    Your browser does not support video.
+  </video>
+</details>
+
   1. Download latest release from [releases page](https://github.com/friends-of-monika/mas-autostart/releases/latest)
      (scroll down to 'Assets' section and select first `.zip` file.)
   2. Extract `game` from `.zip` package into your DDLC folder (folder that contains
