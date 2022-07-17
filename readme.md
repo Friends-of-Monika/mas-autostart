@@ -34,13 +34,9 @@
 
 ## ❓ Download and install instructions
 
-<details>
-  <summary>Click here to see video guide.</summary>
-  <video>
-    <source src="https://raw.githubusercontent.com/Friends-of-Monika/mas-autostart/master/docs/howto.mp4">
-    Your browser does not support video.
-  </video>
-</details>
+### Step by step instruction
+
+If you understand it easier with video guide, jump to next section.
 
   1. Download latest release from [releases page](https://github.com/friends-of-monika/mas-autostart/releases/latest)
      (scroll down to 'Assets' section and select first `.zip` file.)
@@ -60,6 +56,12 @@
          inside DDLC.app package is present and not renamed.
   3. Start the game and enable random chatter &mdash; in order to see enable/disable
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
+
+
+### Video instruction
+
+<!-- This is awful, but GitHub renders video just by seeing a link. Gah. -->
+https://user-images.githubusercontent.com/74068927/179387604-1e7dbcea-6c6e-43af-a2c9-0efbf5e62fd6.mp4
 
 
 ## 🔧 Troubleshooting
