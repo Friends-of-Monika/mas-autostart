@@ -1,15 +1,3 @@
-    Original idea
-
-Sevi https://reddit.com/u/lost_localcat
-
-
-    Programming
-
-dreamscached https://github.com/dreamscached
-             https://reddit.com/u/dreamscached
-
-
-    Expressions, dialogue review
-
-my-otter-self https://github.com/my-otter-self
-              https://reddit.com/u/my-otter-self
+Original idea: Sevi (https://reddit.com/u/lost_localcat)
+Programming: dreamscached (https://github.com/dreamscached, https://reddit.com/u/dreamscached)
+Expressions, dialogue review: my-otter-self (https://github.com/my-otter-self, https://reddit.com/u/my-otter-self)
