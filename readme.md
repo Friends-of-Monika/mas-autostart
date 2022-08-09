@@ -73,6 +73,8 @@ If you understand it easier with video guide, jump to next section.
          inside DDLC.app package is present and not renamed.
   3. Start the game and enable random chatter &mdash; in order to see enable/disable
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
+  4. (Optional, but highly recommended) Install [Submod Updater Plugin](https://github.com/Booplicate/MAS-Submods-SubmodUpdaterPlugin)
+     to be sure you always have latest version of MAS Autostart Submod.
 
 
 ### Video instruction
