@@ -108,6 +108,17 @@ with face/pose expressions and dialogue review performed by [@my-otter-self](htt
   </a>
 </p>
 
+This submod is licensed under Creative Commons BY-NC-ND 4.0 license. This means
+you can share this submod and tell other people about it and redistribute it in
+any form, but under the following conditions:
+
+* You **must** give appropriate credit to submod authors.
+* You **may not** sell or anyhow gain profit from this submod.
+* You **may not** distribute modified version of the submod containing your own
+  changes that were not made by submod authors.
+
+For more info see [Creative Commons BY-NC-ND 4.0 license details](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
 
 
 ## 💬 Join our Discord
