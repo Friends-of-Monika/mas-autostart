@@ -81,7 +81,7 @@ init python in masAutostart_api:
 
 
     def _get_platform_assets_dir():
-        return os.path.join(*renpy.get_filename_line()[0].replace("\\", "/").split("/")[:-1] + ["platform"])
+        return os.path.join(renpy.config.renpy_base, *renpy.get_filename_line()[0].replace("\\", "/").split("/")[:-1] + ["platform"])
 
 
     if renpy.windows:
