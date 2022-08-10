@@ -77,7 +77,7 @@ init python in masAutostart_api:
         # Get executable file (DDLC.py by default) name from argv[0],
         # get last component of the full path, and get just the filename
         # (without extension) from it.
-        return sys.argv[0].replace("\\", "/").split("/")[-1].split("\\.")[0]
+        return sys.argv[0].replace("\\", "/").split("/")[-1].split(".")[0]
 
 
     def _get_platform_assets_dir():
