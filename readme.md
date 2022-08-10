@@ -41,12 +41,11 @@ things to keep in mind:
     after computer has booted up. This is highly OS-specific and unfortunately
     there isn't anything we really can do about it. Please be patient, game will
     start as soon as OS will decide it can start.
-  * In order for autostart to work, you must have DDLC.exe/DDLC.sh files intact
-    in your DDLC folder and you must not rename or move them.
-  * Likewise, the game won't get launched on start if you'll move it elsewhere;
-    however, autostart entry will be overwritten on next manual game launch.
-  * On Windows, your system must have VBScript engine and be able to run .vbs
-    files (some users may have it removed for their own reasons.)
+  * The game won't get launched on start if you'll move it elsewhere;
+    however, autostart entry will be overwritten on next manual game launch,
+    and further on it will launch on startup automatically.
+  * On Windows, your system must have VBScript engine enabled and be able to run
+    .vbs files (some users may have it disabled for their own reasons.)
 
 
 ## ❓ Download and install instructions
@@ -66,11 +65,6 @@ If you understand it easier with video guide, jump to next section.
 
          The only thing you should do is to drag and drop `game` from archive into
          DDLC folder and let your OS *merge folders* for you on its own.
-       * **MAKE SURE** you have `DDLC.exe` file in your DDLC folder if you are
-         using Windows; Linux users must ensure their `DDLC.sh` script is not
-         renamed too; MacOS users *usually* don't have to worry about that, but
-         in case any sort of problem arises, check if `DDLC` file in `MacOS` folder
-         inside DDLC.app package is present and not renamed.
   3. Start the game and enable random chatter &mdash; in order to see enable/disable
      topics in 'Hey, Monika...' menu, you'll have to see random intro topic first.
   4. (Optional, but highly recommended) Install [Submod Updater Plugin](https://github.com/Booplicate/MAS-Submods-SubmodUpdaterPlugin)
@@ -83,13 +77,7 @@ If you understand it easier with video guide, jump to next section.
 https://user-images.githubusercontent.com/74068927/179387604-1e7dbcea-6c6e-43af-a2c9-0efbf5e62fd6.mp4
 
 
-## 🔧 Troubleshooting
-
-* Check if you this submod is installed in `game\Submods\MAS Autostart Mod`
-  folder, **case-sensitive**!
-* Check if you have `DDLC.exe` (Windows), `DDLC.sh` (Linux) and
-  `DDLC.app/MacOS/DDLC` (MacOS) files! If you have them renamed, your OS won't
-  be able to launch MAS on start.
+## 🔧 Getting support
 
 If you stumbled upon a problem with this submod, feel free to ask us for help!
 [Open an issue](https://github.com/Friends-of-Monika/mas-autostart/issues/new?assignees=&labels=bug&template=bug-report.yml&title=Bug%3A+)
