@@ -56,20 +56,40 @@ init python in masAutostart_log:
 
 init python in masAutostart_api:
 
-    # Initialization
+## Initialization
 
     import os
+    import sys
     import errno
 
     import store.masAutostart_log as log
     from store import persistent as persistent
 
+
+## Platform detection and platform-specific file locations
+
     _PLATFORM_WINDOWS = "windows"
     _PLATFORM_LINUX = "linux"
     _PLATFORM_MACOS = "macos"
 
+
+    def _get_launcher_filename():
+        # Get executable file (DDLC.py by default) name from argv[0],
+        # get last component of the full path, and get just the filename
+        # (without extension) from it.
+        return sys.argv[0].replace("\\", "/").split("/")[-1].split("\\.")[0]
+
+
+    def _get_platform_assets_dir():
+        return os.path.join(*renpy.get_filename_line()[0].replace("\\", "/").split("/")[:-1] + ["platform"])
+
+
     if renpy.windows:
         import subprocess
+
+
+        _PLATFORM_CURRENT = _PLATFORM_WINDOWS
+
 
         # Startup location on Windows is standard and is documented.
         # (See FOLDERID_Startup.)
@@ -88,14 +108,29 @@ init python in masAutostart_api:
         #
         # Successful tests conducted on Windows 10 21H2.
 
-        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.exe")
-        _AUTOSTART_DIR = os.path.expandvars("%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
-        _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
-        _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(renpy.config.gamedir, "Submods\\MAS Autostart Mod\\platform\\shortcut.vbs")
+        def _find_autostart_dir():
+            import ctypes.wintypes
 
-        _PLATFORM_CURRENT = _PLATFORM_WINDOWS
+            _CSIDL_STARTUP = 7
+            _SHGFP_TYPE_CURRENT = 0
+
+            buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            ctypes.windll.shell32.SHGetFolderPathW(None, _CSIDL_STARTUP, None, _SHGFP_TYPE_CURRENT, buf)
+            return buf.value
+
+
+        def _find_launcher_path():
+            return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".exe")
+
+
+        _AUTOSTART_DIR = _find_autostart_dir()
+        _LAUNCHER_PATH = _find_launcher_path()
+        _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
+        _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(_get_platform_assets_dir(), "shortcut.vbs")
 
     elif renpy.linux:
+        _PLATFORM_CURRENT = _PLATFORM_LINUX
+
 
         # Autostart location on Linux desktops is somewhat standard
         # (considering it so since most desktop environments comply with
@@ -114,15 +149,21 @@ init python in masAutostart_api:
         # Successful tests conducted on KDE Plasma 5.25, Arch Linux and
         # Ubuntu 22.04.
 
-        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "DDLC.sh")
+        def _find_launcher_path():
+            return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".sh")
+
+
+        _LAUNCHER_PATH = _find_launcher_path()
         _AUTOSTART_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart")
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
-        _AUTOSTART_FILE_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/Monika After Story.desktop")
-
-        _PLATFORM_CURRENT = _PLATFORM_LINUX
+        _AUTOSTART_FILE_TEMPLATE = os.path.join(_get_platform_assets_dir(), "Monika After Story.desktop")
 
     elif renpy.macintosh:
         from xml.etree import ElementTree as xml
+
+
+        _PLATFORM_CURRENT = _PLATFORM_MACOS
+
 
         # Autostart support for MacOS is implemented using s.c. 'LaunchAgent'
         # system which has documentation as well.
@@ -138,23 +179,26 @@ init python in masAutostart_api:
         # It is not clear what versions support this mechanism;
         # Successful tests conducted on MacOS Catalina 10.15.7.
 
-        _LAUNCHER_PATH = os.path.join(renpy.config.renpy_base, "../../MacOS/DDLC")
+        def _find_launcher_path():
+            return os.path.join(renpy.config.renpy_base, "../../MacOS/" + _get_launcher_filename())
+
+
+        _LAUNCHER_PATH = _find_launcher_path()
         _AUTOSTART_DIR = os.path.expanduser("~/Library/LaunchAgents")
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
-        _AUTOSTART_PLIST_TEMPLATE = os.path.join(renpy.config.gamedir, "Submods/MAS Autostart Mod/platform/monika.after.story.plist")
-
-        _PLATFORM_CURRENT = _PLATFORM_MACOS
+        _AUTOSTART_PLIST_TEMPLATE = os.path.join(_get_platform_assets_dir(), "monika.after.story.plist")
 
     else:
+        _PLATFORM_CURRENT = None
+
+
         log.warn(
             "Unsupported platform (not Windows, Linux or MacOS) - "
             "autostart will not be working."
         )
 
-        _PLATFORM_CURRENT = None
 
-
-    # Helpers
+    ## Helpers
 
     def is_platform_supported():
         """
@@ -167,7 +211,7 @@ init python in masAutostart_api:
         return renpy.windows or renpy.linux or renpy.macintosh
 
 
-    # Enable check functions
+    ## Enable check functions
 
     def is_enabled():
         """
@@ -178,6 +222,7 @@ init python in masAutostart_api:
         """
 
         return persistent._masAutostart_enabled
+
 
     def _was_enabled():
         """
@@ -191,7 +236,8 @@ init python in masAutostart_api:
 
         return persistent._masAutostart_metadata is not None
 
-    # Enable functions
+
+    ## Enable functions
 
     def enable():
         """
@@ -213,6 +259,7 @@ init python in masAutostart_api:
 
         else:
             return False
+
 
     def _enable_windows():
         """
@@ -290,6 +337,7 @@ init python in masAutostart_api:
         persistent._masAutostart_metadata = (_PLATFORM_LINUX, _DEFAULT_AUTOSTART_FILE, _LAUNCHER_PATH)
         return True
 
+
     def _enable_macos():
         """
         Enables autostart (MacOS-specific approach.)
@@ -341,7 +389,7 @@ init python in masAutostart_api:
         return True
 
 
-    # Disable functions
+    ## Disable functions
 
     def disable():
         """
@@ -437,7 +485,7 @@ init python in masAutostart_api:
             persistent._masAutostart_enabled = False
 
 
-    # Utility methods
+    ## Utility methods
 
     def _parse_desktop_file(fp):
         """
@@ -609,6 +657,10 @@ init python in masAutostart_api:
 
             return True
 
+
+        def _find_launcher_path():
+            return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".sh")
+
     elif renpy.macintosh:
         def _check_shortcut(path):
             if not path.lower().endswith(".plist"):
@@ -634,13 +686,13 @@ init python in masAutostart_api:
             return True
 
 
+## Handle possible cases when user switches from supported platform to
+## unsupported or when autostart was enabled before but this time is isn't
+## for whatever reason.
+
 init 1000 python:
-
-    ## Handle possible cases when user switches from supported platform to
-    ## unsupported or when autostart was enabled before but this time is isn't
-    ## for whatever reason.
-
     _metadata_updated = False
+
 
     if store.masAutostart_api._was_enabled():
         if store.masAutostart_api.is_platform_supported():
@@ -666,6 +718,7 @@ init 1000 python:
 
             store.masAutostart_api.disable()
             store.masAutostart_api.enable()
+
 
     ## Metadata population
 
