@@ -668,7 +668,7 @@ init python in masAutostart_api:
 
             # Parse autostart .plist file into XML document.
             try:
-                plist_file = _map_file(path, "r", xml.fromstring)
+                plist_file = _map_file(path, "r", xml.parse)
 
             except OSError as e:
                 log.error("Could not parse LaunchAgent file {0} ({1}.)".format(path, e))
