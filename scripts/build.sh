@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Builds a package with the submod.
+# Usage: $ scripts/build PACKAGE_NAME
+
 dir="$(dirname "$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)")"
 temp="$(mktemp -d)"
 
