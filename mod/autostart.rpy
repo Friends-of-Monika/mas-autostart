@@ -296,20 +296,24 @@ init python in masAutostart_api:
             All errors are written to log and no exceptions are raised.
         """
 
-        # Invoke shortcut.vbs script with necessary parameters.
-        # See platform/shortcut.vbs for documentation.
-        exit_code = subprocess.call((
+        param = (
             "cscript",  # VBScript interpreter command
+            "/nologo",  # Exclude Microsoft banner
             _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
             _DEFAULT_AUTOSTART_FILE,  # Path to autostart shortcut
             _LAUNCHER_PATH,  # Path to launcher executable
             os.path.dirname(_LAUNCHER_PATH)  # Working dir (DDLC folder)
-        ))
+        )
+
+        # Invoke shortcut.vbs script with necessary parameters.
+        # See platform/shortcut.vbs for documentation.
+        exit_code = subprocess.call(param)
 
         # If exited with non-zero, that shows script is either wasn't
         # interpreted at all, or wasn't able to create a shortcut.
         if exit_code != 0:
             log.error("Got non-zero exit code from shortcut script invocation ({0}.)".format(exit_code))
+            log.debug("shortcut.vbs was called with parameters: {0}.".format(param))
             return False
 
         # Write meta variables.
@@ -638,12 +642,14 @@ init python in masAutostart_api:
                 return False
 
             try:
-                target_path = subprocess.check_output((
+                param = (
                     "cscript",  # VBScript interpreter command
                     "/nologo",  # Exclude Microsoft banner
                     _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
                     path  # Path to autostart shortcut
-                ))
+                )
+
+                target_path = subprocess.check_output(param)
 
                 if target_path.strip() != _LAUNCHER_PATH:
                     return False
@@ -653,6 +659,7 @@ init python in masAutostart_api:
                     "Could not check shortcut " + path + "; "
                     "shortcut script returned non-zero exit code " + str(e.returncode)
                 )
+                log.debug("shortcut.vbs was called with parameters: {0}.".format(param))
                 return False
 
             return True
