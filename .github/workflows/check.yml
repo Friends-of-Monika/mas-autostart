@@ -1,11 +1,12 @@
-name: "Run checks on push"
+name: "Submod checks"
 
 on:
   push:
     paths: [ "**.rpy" ]
 
 jobs:
-  compile-submod:
+  submod-checks:
+    name: "Submod checks"
     runs-on: "ubuntu-latest"
 
     steps:
