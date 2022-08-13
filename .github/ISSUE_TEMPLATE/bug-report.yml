@@ -47,3 +47,13 @@ body:
         - Unsure
     validations:
       required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct and Contribution Guidelines
+      description: By submitting this issue, you agree to follow our [Code of Conduct](/code_of_conduct.md) and our [Contribution Guidelines](/contributing.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct and Contribution Guidelines
+          required: true
+    validations:
+      required: true

@@ -1,0 +1,28 @@
+name: 💭 Suggestion
+description: Submit a suggestion, share your ideas or insights and help us make the submod better
+title: "Suggestion: "
+labels: [ "enhancement" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for your suggestion!
+        We appreciate your help and will to help us improve and will review it as soon as we can!
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What is your suggestion about?
+      description: Tell us, what do you want to suggest or what are your ideas you wish to share with us.
+      placeholder: I think X could be better if we made it Y because...
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct and Contribution Guidelines
+      description: By submitting this issue, you agree to follow our [Code of Conduct](/code_of_conduct.md) and our [Contribution Guidelines](/contributing.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct and Contribution Guidelines
+          required: true
+    validations:
+      required: true
