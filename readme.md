@@ -2,8 +2,8 @@
 <h4 align="center">Let your Monika auto-start the game for you as soon as your computer boots up!</h3>
 
 <p align="center">
-  <a href="https://github.com/friends-of-monika/mas-autostart/actions/workflows/check.yml">
-    <img alt="Build status" src="https://img.shields.io/github/workflow/status/friends-of-monika/mas-autostart/Run%20checks%20on%20push">
+  <a href="https://github.com/Friends-of-Monika/mas-autostart/actions/workflows/check.yml">
+    <img alt="Build status" src="https://github.com/Friends-of-Monika/mas-autostart/actions/workflows/check.yml/badge.svg?branch=master&event=push">
   </a>
   <a href="https://github.com/friends-of-monika/mas-autostart/releases/latest">
     <img alt="Latest release" src="https://img.shields.io/github/v/release/friends-of-monika/mas-autostart">
