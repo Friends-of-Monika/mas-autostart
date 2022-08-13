@@ -14,9 +14,5 @@ init -989 python:
             user_name="friends-of-monika",
             repository_name="mas-autostart",
             submod_dir="/Submods/MAS Autostart Mod",
-            extraction_depth=3,
-            redirected_files=(
-                "readme.md",
-                "license.txt"
-            )
+            extraction_depth=3
         )
