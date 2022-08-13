@@ -1,4 +1,4 @@
-name: "Submod check"
+name: "Checks"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   submod-checks:
-    name: "Submod checks"
+    name: "Run submod checks"
     runs-on: "ubuntu-latest"
 
     steps:
