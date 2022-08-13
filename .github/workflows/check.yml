@@ -1,8 +1,8 @@
-name: "Submod checks"
+name: "Submod check"
 
 on:
   push:
-    paths: [ "**.rpy" ]
+    paths: [ ".github/workflows/*.yml", "**.rpy" ]
 
 jobs:
   submod-checks:
