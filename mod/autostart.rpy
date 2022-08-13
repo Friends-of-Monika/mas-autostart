@@ -23,6 +23,17 @@ init python in masAutostart_log:
 
     _LOG_PREFIX = "[MAS Autostart Mod] "
 
+    def debug(message):
+        """
+        Log message with debug level prefixed with MAS Autostart Mod prefix.
+
+        IN:
+            message - message to write to log.
+        """
+
+        log.debug(_LOG_PREFIX + message)
+
+
     def info(message):
         """
         Log message with info level prefixed with MAS Autostart Mod prefix.
@@ -128,6 +139,10 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(_get_platform_assets_dir(), "shortcut.vbs")
 
+        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart shortcut script: {3}".format(
+            _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_SHORTCUT_SCRIPT
+        ))
+
     elif renpy.linux:
         _PLATFORM_CURRENT = _PLATFORM_LINUX
 
@@ -153,10 +168,15 @@ init python in masAutostart_api:
             return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".sh")
 
 
-        _LAUNCHER_PATH = _find_launcher_path()
         _AUTOSTART_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart")
+        _LAUNCHER_PATH = _find_launcher_path()
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(_get_platform_assets_dir(), "Monika After Story.desktop")
+
+        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
+            _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_FILE_TEMPLATE
+        ))
+
 
     elif renpy.macintosh:
         from xml.etree import ElementTree as xml
@@ -183,10 +203,14 @@ init python in masAutostart_api:
             return os.path.join(renpy.config.renpy_base, "../../MacOS/" + _get_launcher_filename())
 
 
-        _LAUNCHER_PATH = _find_launcher_path()
         _AUTOSTART_DIR = os.path.expanduser("~/Library/LaunchAgents")
+        _LAUNCHER_PATH = _find_launcher_path()
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(_get_platform_assets_dir(), "monika.after.story.plist")
+
+        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
+            _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_PLIST_TEMPLATE
+        ))
 
     else:
         _PLATFORM_CURRENT = None
