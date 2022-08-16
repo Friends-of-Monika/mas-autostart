@@ -298,7 +298,7 @@ init python in masAutostart_api:
 
         param = (
             "cscript",  # VBScript interpreter command
-            "/nologo",  # Exclude Microsoft banner
+            "/b", "/nologo",  # Exclude Microsoft banner and hide window
             _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
             _DEFAULT_AUTOSTART_FILE,  # Path to autostart shortcut
             _LAUNCHER_PATH,  # Path to launcher executable
@@ -644,7 +644,7 @@ init python in masAutostart_api:
             try:
                 param = (
                     "cscript",  # VBScript interpreter command
-                    "/nologo",  # Exclude Microsoft banner
+                    "/b", "/nologo",  # Exclude Microsoft banner and hide window
                     _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
                     path  # Path to autostart shortcut
                 )

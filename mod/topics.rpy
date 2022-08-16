@@ -59,8 +59,6 @@ init 5 python:
 
 label masAutostart_req_enable:
     m 1eub "Sure, [mas_get_player_nickname()]!~"
-    if renpy.windows:
-        m 2rusdrb "A little window will open and close quickly, but don't mind it."
     m 1dua "Give me a moment..."
 
     m 1dua "{w=0.3}.{w=0.3}.{w=0.3}.{nw}"
