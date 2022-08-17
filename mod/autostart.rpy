@@ -131,7 +131,7 @@ init python in masAutostart_api:
         #
         # We're using simple VBScript file (see mod/platform/shortcut.vbs)
         # in order to create shortcut without involving additional dependencies
-        # (see its invocation at _enable_windows.)
+        # (see its invocation at __enable_windows.)
         #
         # As much as we know so far, VBScript engine is added to all Windows
         # desktop distributions starting from Windows 98.
@@ -150,12 +150,12 @@ init python in masAutostart_api:
             return buf.value
 
 
-        def _find_launcher_path():
+        def __find_launcher_path():
             return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".exe")
 
 
         _AUTOSTART_DIR = _find_autostart_dir()
-        _LAUNCHER_PATH = _find_launcher_path()
+        _LAUNCHER_PATH = __find_launcher_path()
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(_get_platform_assets_dir(), "shortcut.vbs")
 
@@ -179,17 +179,17 @@ init python in masAutostart_api:
         #
         # We're using small .desktop file preset to parse it and populate with
         # necessary values, then write to corresponding location (see its
-        # parsing and creation at _enable_linux.)
+        # parsing and creation at __enable_linux.)
         #
         # Successful tests conducted on KDE Plasma 5.25, Arch Linux and
         # Ubuntu 22.04.
 
-        def _find_launcher_path():
+        def __find_launcher_path():
             return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".sh")
 
 
         _AUTOSTART_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "autostart")
-        _LAUNCHER_PATH = _find_launcher_path()
+        _LAUNCHER_PATH = __find_launcher_path()
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(_get_platform_assets_dir(), "Monika After Story.desktop")
 
@@ -219,12 +219,12 @@ init python in masAutostart_api:
         # It is not clear what versions support this mechanism;
         # Successful tests conducted on MacOS Catalina 10.15.7.
 
-        def _find_launcher_path():
+        def __find_launcher_path():
             return os.path.join(renpy.config.renpy_base, "../../MacOS/" + _get_launcher_filename())
 
 
         _AUTOSTART_DIR = os.path.expanduser("~/Library/LaunchAgents")
-        _LAUNCHER_PATH = _find_launcher_path()
+        _LAUNCHER_PATH = __find_launcher_path()
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(_get_platform_assets_dir(), "monika.after.story.plist")
 
@@ -268,7 +268,7 @@ init python in masAutostart_api:
         return persistent._masAutostart_enabled
 
 
-    def _was_enabled():
+    def __was_enabled():
         """
         Tells if autostart was enabled by player before (but it might not
         necessarily be enabled right now due to another platform, unsupported
@@ -289,23 +289,27 @@ init python in masAutostart_api:
 
         OUT:
             True if autostart was enabled successfully, False otherwise.
-            Also returns False if platform is unsupported.
+            Also returns False if platform is unsupported or if it was enabled
+            previously already.
         """
 
+        if __was_enabled():
+            return False
+
         if renpy.windows:
-            return _enable_windows()
+            return __enable_windows()
 
         elif renpy.linux:
-            return _enable_linux()
+            return __enable_linux()
 
         elif renpy.macintosh:
-            return _enable_macos()
+            return __enable_linux()
 
         else:
             return False
 
 
-    def _enable_windows():
+    def __enable_windows():
         """
         Enables autostart (Windows-specific approach.)
 
@@ -342,7 +346,7 @@ init python in masAutostart_api:
         return True
 
 
-    def _enable_linux():
+    def __enable_linux():
         """
         Enables autostart (Linux-specific approach.)
 
@@ -356,7 +360,7 @@ init python in masAutostart_api:
         # Parse template .desktop autostart file and populate Exec parameter
         # with launcher script path.
         try:
-            desktop_file = _map_file(_AUTOSTART_FILE_TEMPLATE, "r", _parse_desktop_file)
+            desktop_file = __map_file(_AUTOSTART_FILE_TEMPLATE, "r", __parse_desktop_file)
             desktop_file["Desktop Entry"]["Exec"] = _LAUNCHER_PATH
 
         except OSError as e:
@@ -374,7 +378,7 @@ init python in masAutostart_api:
                     raise
 
             # Serialize and write .desktop file; toggle status variable.
-            _map_file(_DEFAULT_AUTOSTART_FILE, "w", _serialize_desktop_file, [desktop_file])
+            __map_file(_DEFAULT_AUTOSTART_FILE, "w", __serialize_desktop_file, [desktop_file])
 
         except OSError as e:
             log.error("Could not write desktop file {0} ({1}.)".format(_DEFAULT_AUTOSTART_FILE, e))
@@ -386,7 +390,7 @@ init python in masAutostart_api:
         return True
 
 
-    def _enable_macos():
+    def __enable_linux():
         """
         Enables autostart (MacOS-specific approach.)
 
@@ -400,17 +404,17 @@ init python in masAutostart_api:
         # Parse template .plist LaunchAgent file and populate ProgramArguments
         # parameter with launcher executable path.
         try:
-            plist_file = _map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.parse)
+            plist_file = __map_file(_AUTOSTART_PLIST_TEMPLATE, "r", xml.parse)
             plist_file.find(".//array/string").text = _LAUNCHER_PATH
 
         except OSError as e:
             log.error("Could not parse template plist file {0} ({1}.)".format(_AUTOSTART_PLIST_TEMPLATE, e))
             return False
 
-        # Helper function for use with _map_file that reads header (with XML
+        # Helper function for use with __map_file that reads header (with XML
         # tag and schema) because ETree doesn't handle it.
         def dump(fp):
-            fp.write(_map_file(_DEFAULT_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
+            fp.write(__map_file(_DEFAULT_AUTOSTART_FILE, "r", lambda fp: "".join(fp.readlines()[:2])))
             plist_file.write(fp)
 
         # Write actual autostart .plist LaunchAgent file to its
@@ -425,7 +429,7 @@ init python in masAutostart_api:
                     raise
 
             # Serialize and write .plist file.
-            _map_file(_DEFAULT_AUTOSTART_FILE, "w", dump)
+            __map_file(_DEFAULT_AUTOSTART_FILE, "w", dump)
 
         except OSError as e:
             log.error("Could not write LaunchAgent file {0} ({1}.)".format(persistent._masAutostart_metadata[1], e))
@@ -445,13 +449,14 @@ init python in masAutostart_api:
 
         NOTE:
             No-op if platform is unsupported (if is_platform_supported call
-            returned False.)
+            returned False) or if it was not enabled previously.
         """
 
-        if renpy.windows or renpy.linux or renpy.macintosh:
-            _disable_delete_desktop_file()
+        if not __was_enabled():
+            if renpy.windows or renpy.linux or renpy.macintosh:
+                __disable_delete_desktop_file()
 
-    def _disable_delete_desktop_file():
+    def __disable_delete_desktop_file():
         """
         Disables autostart (currently, the approach is uniform to all platforms)
         by deleting autostart file.
@@ -472,23 +477,22 @@ init python in masAutostart_api:
         persistent._masAutostart_enabled = False
 
         # If there is metadata saved, remove all the leftovers and wipe variable.
-        if persistent._masAutostart_metadata is not None:
-            try:
-                os.remove(persistent._masAutostart_metadata[1])
+        try:
+            os.remove(persistent._masAutostart_metadata[1])
 
-            except OSError as e:
-                # Silence ENOENT (does not exist) error.
-                if e.errno != errno.ENOENT:
-                    log.error("Could not delete " + persistent._masAutostart_metadata[1] + ".")
-                    return
+        except OSError as e:
+            # Silence ENOENT (does not exist) error.
+            if e.errno != errno.ENOENT:
+                log.error("Could not delete " + persistent._masAutostart_metadata[1] + ".")
+                return
 
-            # Wipe metadata variable.
-            persistent._masAutostart_metadata = None
+        # Wipe metadata variable.
+        persistent._masAutostart_metadata = None
 
 
     ## Existing autostart file detection
 
-    def _find_autostart_files():
+    def __find_autostart_files():
         """
         Scans autostart directory for current platform and returns list of
         paths that are valid autostart files for MAS.
@@ -508,12 +512,12 @@ init python in masAutostart_api:
             for _file in files:
                 # Convert to absolute path and check.
                 _file = os.path.join(cd, _file)
-                if _check_shortcut(_file):
+                if __check_shortcut(_file):
                     autostart_files.append(_file)
 
         return autostart_files
 
-    def _update_metadata():
+    def __update_metadata():
         """
         Scans autostart directory and updates metadata if autostart files exist.
 
@@ -522,20 +526,20 @@ init python in masAutostart_api:
             undefined behaviour.
         """
 
-        files = _find_autostart_files()
+        files = __find_autostart_files()
 
         if len(files) > 0:
             persistent._masAutostart_metadata = (_PLATFORM_CURRENT, files[0], _LAUNCHER_PATH)
             persistent._masAutostart_enabled = True
 
         else:
-            # Do not remove metadata in order for _was_enabled() to work.
+            # Do not remove metadata in order for __was_enabled() to work.
             persistent._masAutostart_enabled = False
 
 
     ## Utility methods
 
-    def _parse_desktop_file(fp):
+    def __parse_desktop_file(fp):
         """
         Parses .desktop file from file stream and returns it as dictionary of
         groups as keys (root/ungrouped keys are written directly to dictionary
@@ -567,8 +571,8 @@ init python in masAutostart_api:
                 obj[_group] = param
 
             # Reset state.
-            _parse_desktop_file._group = None
-            _parse_desktop_file.param = dict()
+            __parse_desktop_file._group = None
+            __parse_desktop_file.param = dict()
 
         while True:
             # Parse file line by line.
@@ -595,16 +599,16 @@ init python in masAutostart_api:
                 _key, _, _value = line.partition("=")
                 param[_key] = _value
 
-    def _serialize_desktop_file(fp, desktop_file):
+    def __serialize_desktop_file(fp, desktop_file):
         """
-        Serializes desktop file dictionary (parsed with _parse_desktop_file)
+        Serializes desktop file dictionary (parsed with __parse_desktop_file)
         to file stream.
 
         IN:
             fp - writable file stream (file opened with "open" function in "w"
             mode.)
             desktop_file - desktop file dictionary (parsed with
-            _parse_desktop_file)
+            __parse_desktop_file)
         """
 
         # Scan keys and values in desktop file object.
@@ -623,7 +627,7 @@ init python in masAutostart_api:
             else:
                 fp.write("{0}={1}\n".format(_key, _value))
 
-    def _map_file(path, mode, fun, args=None):
+    def __map_file(path, mode, fun, args=None):
         """
         Opens file at specific path in requsted mode and passes obtained
         descriptor as first argument to provided function (optionally, with
@@ -657,7 +661,7 @@ init python in masAutostart_api:
     ## Platform-dependent utility functions
 
     if renpy.windows:
-        def _check_shortcut(path):
+        def __check_shortcut(path):
             if not path.lower().endswith(".lnk"):
                 return False
 
@@ -685,13 +689,13 @@ init python in masAutostart_api:
             return True
 
     elif renpy.linux:
-        def _check_shortcut(path):
+        def __check_shortcut(path):
             if not path.lower().endswith(".desktop"):
                 return False
 
             # Parse autostart .desktop file into dictionary.
             try:
-                desktop_file = _map_file(path, "r", _parse_desktop_file)
+                desktop_file = __map_file(path, "r", __parse_desktop_file)
 
             except IOError as e:
                 log.error("Could not parse desktop file " + path + ".")
@@ -709,17 +713,17 @@ init python in masAutostart_api:
             return True
 
 
-        def _find_launcher_path():
+        def __find_launcher_path():
             return os.path.join(renpy.config.renpy_base, _get_launcher_filename() + ".sh")
 
     elif renpy.macintosh:
-        def _check_shortcut(path):
+        def __check_shortcut(path):
             if not path.lower().endswith(".plist"):
                 return False
 
             # Parse autostart .plist file into XML document.
             try:
-                plist_file = _map_file(path, "r", xml.parse)
+                plist_file = __map_file(path, "r", xml.parse)
 
             except OSError as e:
                 log.error("Could not parse LaunchAgent file {0} ({1}.)".format(path, e))
@@ -745,7 +749,7 @@ init 1000 python:
     _metadata_updated = False
 
 
-    if store.masAutostart_api._was_enabled():
+    if store.masAutostart_api.__was_enabled():
         if store.masAutostart_api.is_platform_supported():
             # In case we previously hid disable topic, enable it
             # since we're on supported platform now and autostart is enabled.
@@ -761,7 +765,7 @@ init 1000 python:
 
             mas_hideEVL("masAutostart_req_disable", "EVE", lock=True)
 
-        store.masAutostart_api._update_metadata()
+        store.masAutostart_api.__update_metadata()
         _metadata_updated = True
 
         if not store.masAutostart_api.is_enabled():
@@ -774,5 +778,5 @@ init 1000 python:
     ## Metadata population
 
     if not _metadata_updated:
-        store.masAutostart_api._update_metadata()
+        store.masAutostart_api.__update_metadata()
     del _metadata_updated
