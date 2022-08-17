@@ -158,7 +158,7 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.lnk")
         _AUTOSTART_SHORTCUT_SCRIPT = os.path.join(_get_platform_assets_dir(), "shortcut.vbs")
 
-        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart shortcut script: {3}".format(
+        log.debug("Autostart directory: {0}, launcher path: {1}, default autostart file: {2}, autostart shortcut script: {3}".format(
             _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_SHORTCUT_SCRIPT
         ))
 
@@ -192,7 +192,7 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "Monika After Story.desktop")
         _AUTOSTART_FILE_TEMPLATE = os.path.join(_get_platform_assets_dir(), "Monika After Story.desktop")
 
-        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
+        log.debug("Autostart directory: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
             _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_FILE_TEMPLATE
         ))
 
@@ -227,7 +227,7 @@ init python in masAutostart_api:
         _DEFAULT_AUTOSTART_FILE = os.path.join(_AUTOSTART_DIR, "monika.after.story.plist")
         _AUTOSTART_PLIST_TEMPLATE = os.path.join(_get_platform_assets_dir(), "monika.after.story.plist")
 
-        log.debug("autostart dir: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
+        log.debug("Autostart directory: {0}, launcher path: {1}, default autostart file: {2}, autostart file template: {3}".format(
             _AUTOSTART_DIR, _LAUNCHER_PATH, _DEFAULT_AUTOSTART_FILE, _AUTOSTART_PLIST_TEMPLATE
         ))
 
