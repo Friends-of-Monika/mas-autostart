@@ -92,7 +92,26 @@ init python in masAutostart_api:
 
 
     def _get_platform_assets_dir():
-        return os.path.join(renpy.config.renpy_base, *renpy.get_filename_line()[0].replace("\\", "/").split("/")[:-1] + ["platform"])
+        path = renpy.get_filename_line()[0].replace("\\", "/")
+        if os.path.isabs(path):
+            path = os.path.relpath(path, renpy.config.renpy_base)
+
+        parts = path.split("/")[:-1]
+        parts.append("platform")
+
+        if parts[0] != "game":
+            for n in range(1, len(parts)):
+                parts_proc = parts[n:]
+                parts_proc.insert(0, "game")
+
+                full_abs_path = os.path.join(renpy.config.renpy_base, *parts_proc)
+                if os.path.exists(full_abs_path):
+                    return full_abs_path
+
+            return os.path.join(renpy.config.gamedir, "Submods", "MAS Autostart Mod", "platform")
+
+        else:
+            return os.path.join(renpy.config.renpy_base, *parts)
 
 
     if renpy.windows:
