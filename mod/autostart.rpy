@@ -141,6 +141,7 @@ init python in masAutostart_api:
         def _find_autostart_dir():
             import ctypes.wintypes
 
+            # Using CSIDL to ensure this works everywhere, not just on Vista+
             _CSIDL_STARTUP = 7
             _SHGFP_TYPE_CURRENT = 0
 
