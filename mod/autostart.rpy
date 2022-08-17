@@ -303,7 +303,7 @@ init python in masAutostart_api:
             return __enable_linux()
 
         elif renpy.macintosh:
-            return __enable_linux()
+            return __enable_macos()
 
         else:
             return False
@@ -390,7 +390,7 @@ init python in masAutostart_api:
         return True
 
 
-    def __enable_linux():
+    def __enable_macos():
         """
         Enables autostart (MacOS-specific approach.)
 
@@ -452,7 +452,7 @@ init python in masAutostart_api:
             returned False) or if it was not enabled previously.
         """
 
-        if not __was_enabled():
+        if __was_enabled():
             if renpy.windows or renpy.linux or renpy.macintosh:
                 __disable_delete_desktop_file()
 
