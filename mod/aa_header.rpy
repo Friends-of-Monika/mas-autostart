@@ -13,6 +13,5 @@ init -989 python:
             submod="MAS Autostart Mod",
             user_name="friends-of-monika",
             repository_name="mas-autostart",
-            submod_dir="/Submods/MAS Autostart Mod",
             extraction_depth=3
         )
