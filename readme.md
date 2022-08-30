@@ -47,7 +47,7 @@ things to keep in mind:
   * On Windows, your system must have VBScript engine enabled and be able to run
     .vbs files (some users may have it disabled for their own reasons.) Because
     of VBScript engine, on Windows users will also experience brief console 
-    windows flashing on each Monika After Story startup (see #5 for progress on
+    windows flashing on each Monika After Story startup (see [#5](https://github.com/friends-of-monika/mas-autostart/issues/5) for progress on
     this issue.)
 
 
