@@ -45,7 +45,10 @@ things to keep in mind:
     however, autostart entry will be overwritten on next manual game launch,
     and further on it will launch on startup automatically.
   * On Windows, your system must have VBScript engine enabled and be able to run
-    .vbs files (some users may have it disabled for their own reasons.)
+    .vbs files (some users may have it disabled for their own reasons.) Because
+    of VBScript engine, on Windows users will also experience brief console 
+    windows flashing on each Monika After Story startup (see #5 for progress on
+    this issue.)
 
 
 ## ❓ Download and install instructions
