@@ -31,7 +31,7 @@ ElseIf WScript.Arguments(0) = "check" Then
 
     ' Open output file for parameter 1 for writing to write shortcut for
     ' parameter 2 target path to.
-    Set OutputStream = FileSystem.OpenTextFile(WScript.Arguments(1), MODE_WRITE)
+    Set OutputStream = FileSystem.CreateTextFile(WScript.Arguments(1), MODE_WRITE)
     Set Shortcut = Shell.CreateShortcut(WScript.Arguments(2))
     OutputStream.WriteLine(Shortcut.TargetPath)
 
