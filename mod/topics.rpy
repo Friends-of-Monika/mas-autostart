@@ -52,7 +52,7 @@ init 5 python:
             prompt="Can you greet me every time I turn on my computer?",
             category=["misc", "mod"],
             pool=True,
-            conditional="store.masAutostart_api.is_platform_supported()"
+            conditional="store.masAutostart_api.is_platform_supported()",
             action=EV_ACT_UNLOCK,
             rules={"bookmark_rule": store.mas_bookmarks_derand.WHITELIST}
         ),
