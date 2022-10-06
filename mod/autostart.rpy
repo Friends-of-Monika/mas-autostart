@@ -681,6 +681,12 @@ init python in masAutostart_api:
 
                 subprocess.check_output(param)
                 target_path = __map_file(out_file, "r", lambda f: f.read())
+
+                try:
+                    os.remove(out_file)
+                except IOError as e:
+                    pass
+
                 if target_path.strip() != _LAUNCHER_PATH:
                     return False
 
