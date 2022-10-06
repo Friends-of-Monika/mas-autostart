@@ -322,7 +322,7 @@ init python in masAutostart_api:
         """
 
         param = (
-            "cscript",  # VBScript interpreter command
+            "wscript",  # VBScript interpreter command
             "/nologo",  # Exclude Microsoft banner
             _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
             "create",  # "create" subcommand
