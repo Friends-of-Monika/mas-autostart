@@ -680,7 +680,7 @@ init python in masAutostart_api:
                 )
 
                 subprocess.check_output(param)
-                target_path = __map_file(out_file, "r", lambda f: f.read())
+                target_path = __map_file(out_file, "r", lambda f: f.read().strip())
 
                 try:
                     os.remove(out_file)
