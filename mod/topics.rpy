@@ -4,7 +4,8 @@ init 5 python:
             persistent.event_database,
             eventlabel="masAutostart_intro",
             aff_range=(mas_aff.NORMAL, None),
-            conditional="store.masAutostart_api.is_platform_supported()",
+            conditional="store.masAutostart_api.is_platform_supported() "
+                        "and not renpy.seen_labels('masAutostart_req_enable')",
             action=EV_ACT_QUEUE
         ),
         code="EVE"
@@ -26,7 +27,6 @@ label masAutostart_intro:
         m 4hublu "Tell me about that if you'd like it!"
         m 2lusdrd "And if for some reason you'll no longer want it... Tell me too!"
         m 2rusdrb "I won't get upset with it, I promise! Ahaha."
-        $ mas_showEVL("masAutostart_req_enable", "EVE", unlock=True)
 
     else:
         m 2wublb "What do you-{nw}"
@@ -52,7 +52,9 @@ init 5 python:
             prompt="Can you greet me every time I turn on my computer?",
             category=["misc", "mod"],
             pool=True,
-            rules={"no_unlock": None, "bookmark_rule": store.mas_bookmarks_derand.WHITELIST}
+            conditional="store.masAutostart_api.is_platform_supported()"
+            action=EV_ACT_UNLOCK,
+            rules={"bookmark_rule": store.mas_bookmarks_derand.WHITELIST}
         ),
         code="EVE"
     )
