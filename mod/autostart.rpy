@@ -116,6 +116,7 @@ init python in masAutostart_api:
 
     if renpy.windows:
         import subprocess
+        import tempfile
 
 
         _PLATFORM_CURRENT = _PLATFORM_WINDOWS
@@ -321,9 +322,10 @@ init python in masAutostart_api:
         """
 
         param = (
-            "cscript",  # VBScript interpreter command
+            "wscript",  # VBScript interpreter command
             "/nologo",  # Exclude Microsoft banner
             _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
+            "create",  # "create" subcommand
             _DEFAULT_AUTOSTART_FILE,  # Path to autostart shortcut
             _LAUNCHER_PATH,  # Path to launcher executable
             os.path.dirname(_LAUNCHER_PATH)  # Working dir (DDLC folder)
@@ -665,24 +667,41 @@ init python in masAutostart_api:
             if not path.lower().endswith(".lnk"):
                 return False
 
+            out_file = tempfile.mktemp()
+
             try:
                 param = (
-                    "cscript",  # VBScript interpreter command
+                    "wscript",  # VBScript interpreter command
                     "/nologo",  # Exclude Microsoft banner
                     _AUTOSTART_SHORTCUT_SCRIPT,  # shortcut.vbs path
+                    "check",  # "check" subcommand
+                    out_file,  # File to write output to
                     path  # Path to autostart shortcut
                 )
 
-                target_path = subprocess.check_output(param)
+                subprocess.check_output(param)
+                target_path = __map_file(out_file, "r", lambda f: f.read())
+
+                try:
+                    os.remove(out_file)
+                except IOError as e:
+                    pass
 
                 if target_path.strip() != _LAUNCHER_PATH:
                     return False
 
-            except subprocess.CalledProcessError as e:
-                log.error(
-                    "Could not check shortcut " + path + "; "
-                    "shortcut script returned non-zero exit code " + str(e.returncode)
-                )
+            except (subprocess.CalledProcessError, IOError) as e:
+                if isinstance(e, subprocess.CalledProcessError):
+                    log.error(
+                        "Could not check shortcut " + path + "; "
+                        "shortcut script returned non-zero exit code " + str(e.returncode)
+                    )
+                else:
+                    log.error(
+                        "Could not check shortcut " + path + "; "
+                        "could not read from output file: " + str(e)
+                    )
+
                 log.debug("shortcut.vbs was called with parameters: {0}.".format(param))
                 return False
 
