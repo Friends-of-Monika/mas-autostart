@@ -25,7 +25,7 @@ If WScript.Arguments(0) = "create" Then
     Shortcut.WorkingDirectory = WScript.Arguments(3)
     Shortcut.Save
 
-Else If WScript.Arguments(0) = "check" Then
+ElseIf WScript.Arguments(0) = "check" Then
     Set FileSystem = WScript.CreateObject("Scripting.FileSystemObject")
     Const MODE_WRITE = 2
 
