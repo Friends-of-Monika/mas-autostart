@@ -15,7 +15,7 @@
     <img alt="Release downloads" src="https://img.shields.io/github/downloads/friends-of-monika/mas-autostart/total">
   </a>
   <a href="https://mon.icu/discord">
-    <img alt="Discord server" src="https://discordapp.com/api/guilds/970747033071804426/widget.png?style=shield">
+    <img alt="Discord server" src="https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=shield">
   </a>
   <a href="https://github.com/friends-of-monika/mas-autostart/blob/master/license.txt">
     <img alt="Creative Commons BY-NC-ND 4.0 license badge" src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg">
