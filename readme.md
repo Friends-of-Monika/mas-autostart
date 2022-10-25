@@ -14,7 +14,7 @@
   <a href="https://github.com/friends-of-monika/mas-autostart/releases">
     <img alt="Release downloads" src="https://img.shields.io/github/downloads/friends-of-monika/mas-autostart/total">
   </a>
-  <a href="https://mon.icu/discord">
+  <a href="https://dcache.me/discord">
     <img alt="Discord server" src="https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=shield">
   </a>
   <a href="https://github.com/friends-of-monika/mas-autostart/blob/master/license.txt">
@@ -81,7 +81,7 @@ https://user-images.githubusercontent.com/74068927/179387604-1e7dbcea-6c6e-43af-
 
 If you stumbled upon a problem with this submod, feel free to ask us for help!
 [Open an issue](https://github.com/Friends-of-Monika/mas-autostart/issues/new?assignees=&labels=bug&template=bug-report.yml&title=Bug%3A+)
-or talk to us in [our Discord server](https://mon.icu/discord).
+or talk to us in [our Discord server](https://dcache.me/discord).
 
 
 ## ✒️ Authors
