@@ -111,8 +111,6 @@ For more info see [Creative Commons BY-NC-ND 4.0 license details](https://creati
 
 ## 💬 Join our Discord
 
-We're up to chat! Come join submod author's Discord server [here](https://dcache.me/discord) or come to chat at Friends
-of Monika Discord server [here](https://mon.icu/discord).
+We're up to chat! Come join submod author's Discord server [here](https://dcache.me/discord).
 
 [![Discord server invitation](https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=banner3)](https://dcache.me/discord)
-[![Discord server invitation](https://discordapp.com/api/guilds/970747033071804426/widget.png?style=banner3)](https://mon.icu/discord)
