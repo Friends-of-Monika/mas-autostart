@@ -16,13 +16,3 @@ body:
       placeholder: I think X could be better if we made it Y because...
     validations:
       required: true
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct and Contribution Guidelines
-      description: By submitting this pull request, you agree to follow our [Code of Conduct](https://github.com/Friends-of-Monika/mas-autostart/blob/master/code_of_conduct.md) and our [Contribution Guidelines](https://github.com/Friends-of-Monika/mas-autostart/blob/master/contributing.md)
-      options:
-        - label: I agree to follow this project's Code of Conduct and Contribution Guidelines
-          required: true
-    validations:
-      required: true
