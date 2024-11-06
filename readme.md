@@ -14,7 +14,7 @@
   <a href="https://github.com/friends-of-monika/mas-autostart/releases">
     <img alt="Release downloads" src="https://img.shields.io/github/downloads/friends-of-monika/mas-autostart/total">
   </a>
-  <a href="https://dcache.me/discord">
+  <a href="https://mon.icu/discord">
     <img alt="Discord server" src="https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=shield">
   </a>
   <a href="https://github.com/friends-of-monika/mas-autostart/blob/master/license.txt">
